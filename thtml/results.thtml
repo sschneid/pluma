@@ -1,0 +1,7 @@
+
+                <div id="mainTitle">Search results</div>
+
+                <div id="content">
+                    <!-- tmpl_var name="results" -->
+                </div>
+

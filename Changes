@@ -1,0 +1,10 @@
+Revision history of pluma
+
+1.2
+* Wed Jul 30 2008 Scott Schneider <sschneid@gmail.com>
+- Added password-changing method
+- UI tweaks (removed color-themed dividers, smaller CSS footprint)
+
+1.1
+* Mon July 28 2008 Scott Schneider <sschneid@gmail.com>
+- initial changelog created

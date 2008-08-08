@@ -1,0 +1,17 @@
+
+        <div id="mainTitle">Search</div>
+
+            <form method="post">
+            <input type="hidden" name="rm" value="search">
+
+            <div id="content">
+                <input name="search" /> &nbsp;&nbsp;
+                <input type="submit" class="button" name="" value=" Search " />
+
+                <br /><br />
+
+                If you wish to broaden your search criteria, try shortening your input down to the first three or four letters of your search term. If more than one object is found that meets your search criteria, you will be presented with a selection list.
+           </div>
+
+           </form>
+

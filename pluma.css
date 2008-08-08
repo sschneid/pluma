@@ -1,0 +1,111 @@
+body {
+    margin:             0px;
+    padding:            0px;
+    font-family:        Verdana, sans-serif;
+    font-size:          12px;
+    background:         #eee;
+}
+
+h1 {
+    margin:             0px;
+    padding:            10px 35px 0px 35px;
+    height:             20px;
+    background:         url(img/bgGradientEEE.jpg) repeat;
+    font-size:          14px;
+    font-weight:        normal;
+}
+
+h2 {
+    margin:             20px 20px 0px 20px;
+    padding:            0px;
+    height:             0px;
+}
+
+#nav {
+    margin:             0px 0px 0px 20px;
+}
+
+#container {
+    margin-top:         0px 0px 0px 20px;
+    margin-left:        20px;
+    margin-right:       20px;
+    padding:            20px;
+    height:             100%;
+    background:         repeat #fff;
+    border:             solid 1px #aaa;
+}
+
+#mainTitle {
+    margin-bottom:      17px;
+    font-size:          14px;
+    font-weight:        bold;
+    border-bottom:      solid 1px #bfbf60;
+}
+
+.objectItem .attr {
+    float:              left;
+    width:              120px;
+    margin-left:        1px;
+    margin-right:       10px;
+}
+
+.valnochg             { color: #666; }
+
+.objectTitle {
+    margin-bottom:      5px;
+    font-size:          12px;
+}
+
+.selectBox            { width: 100%; }
+
+table {
+    margin:             0px 0px 0px 0px;
+    padding:            0px;
+    width:              100%;
+}
+
+td, tr {
+    margin:             0px;
+    padding:            0px;
+    font-size:          12px;
+}
+
+#divider {
+    margin-top:         5px;
+    margin-bottom:      20px;
+    border-bottom:      solid 1px #bfbf60;
+}
+
+input, select, option { font-size: 12px; }
+select                { color: #666; }
+
+#content              { margin-left: 10px; }
+
+.resultsItem {
+    margin:             8px 0px 5px 0px;
+}
+
+.resultsItem a {
+    text-decoration:    none;
+    color:              #666;
+}
+
+img {
+    border:             0px;
+    width:              16px;
+    height:             16px;
+    padding-right:      5px;
+    vertical-align:     top;
+    behavior:           url( pngBehavior.htc );
+}
+
+.resultsItem .icon {
+    width:              50px;
+    float:              left;
+}
+
+.resultsItem .item {
+    width:              100px;
+    float:              left;
+}
+

@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+    <head>
+        <title>pluma : LDAP User Management</title>
+        <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+        <link rel="stylesheet" type="text/css" href="pluma.css" />
+    </head>
+
+    <body>
+        <div id="page">
+
+        <h1>
+          <table>
+            <tr>
+              <td>
+                  <a href="/?rm=search"><img src="/img/search.png" /></a>
+                  <a href="/?rm=displayCreate&create=user"><img src="/img/user_add.png" /></a>
+                  <a href="/?rm=displayCreate&create=group"><img src="/img/group_add.png" /></a>
+              </td>
+              <td align="right">
+                  pluma &nbsp;:&nbsp; LDAP User Management
+              </td>
+            </tr>
+          </table>
+        </h1>
+
+        <h2> &nbsp; </h2>
+
+        <div id="container">
+            <!-- tmpl_var name="container" -->
+        </div>
+
+        </div>
+    </body>
+
+</html>
+
