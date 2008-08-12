@@ -483,7 +483,11 @@ sub search {
 
     my $search = { %{$user}, %{$group} };
 
-    return( 'nomatch' ) unless $search;
+    unless ( keys %{$search} ) {
+        return $self->_wrapAll(
+            container => 'results', results => 'No matches found.'
+        );
+    }
 
     # Return a list
     return $self->_wrapAll(
