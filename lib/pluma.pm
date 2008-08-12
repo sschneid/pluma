@@ -10,7 +10,7 @@
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# $Id: pluma.pm,v 1.2 2008/07/30 15:42:36 sschneid Exp $
+# $Id: pluma.pm,v 1.3 2008/08/11 20:20:03 schneis Exp $
 
 package pluma;
 
@@ -174,8 +174,10 @@ sub displayUser {
 
     # Login shells
     $user->{'shells'} = $self->{'cgi'}->popup_menu(
-        -name  =>  'loginShell',
-        -values => [ sort @{$self->{'config'}->{'shells'}} ]
+        -name    => 'loginShell',
+        -class   => 'dropBox',
+        -values  => [ sort @{$self->{'config'}->{'shells'}} ],
+        -default => $user->{'loginShell'}
     );
 
     # Hosts
@@ -209,11 +211,15 @@ sub displayUser {
     %{$group} = %{$self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.Base.Group'},
             filter => 'objectClass=posixGroup',
-            attrs  => [ 'cn', 'uniqueMember' ]
+            attrs  => [ 'cn', 'gidNumber', 'uniqueMember' ]
     )};
 
+    my ( %labels );
     foreach my $g ( keys %{$group} ) {
         my $uid = $user->{'uid'};
+
+        # Associate labels (CNs) with gidNumbers
+        $labels{$group->{$g}->{'gidNumber'}} = $group->{$g}->{'cn'};
 
         # Push single-user uniqueMember into an array
         $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
@@ -227,6 +233,16 @@ sub displayUser {
             unless $group->{1}->{$group->{$g}->{'cn'}};
     }
 
+    # Default gidNumber
+    $user->{'groups'} = $self->{'cgi'}->popup_menu(
+        -name    =>  'gidNumber',
+        -class   => 'dropBox',
+        -values  => [ sort { $labels{$a} cmp $labels{$b} } keys %labels ],
+        -default => $user->{'gidNumber'},
+        -labels  => \%labels,
+    );
+
+    # Available/member-of group
     $user->{'availGroups'} = $self->{'cgi'}->scrolling_list(
         -name => 'availGroups', -values => [ sort keys %{$group->{0}} ],
         -size => 7,             -class  => 'selectBox'
@@ -303,12 +319,14 @@ sub modUser {
         }
     }
 
-    if ($self->{'arg'}->{'loginShell'}) {
-        $self->{'ldap'}->modify(
-            'uid=' . $self->{'arg'}->{'user'} . ','
-                   . $self->{'config'}->{'ldap.Base.User'},
-            replace => { loginShell => $self->{'arg'}->{'loginShell'} }
-        );
+    foreach my $attr ( qw/ gidNumber loginShell / ) {
+        unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
+            $self->{'ldap'}->modify(
+                'uid=' . $self->{'arg'}->{'user'} . ','
+                       . $self->{'config'}->{'ldap.Base.User'},
+                replace => { $attr => $self->{'arg'}->{$attr} }
+            );
+        }
     }
 
     return $self->displayUser();
@@ -412,7 +430,7 @@ sub delete {
 }
 
 sub password {
-my $self = shift;
+    my $self = shift;
 
     my $pwSalt = join '',
         ('.', '/', 0..9, 'A'..'Z', 'a'..'z')[rand 64, rand 64];
