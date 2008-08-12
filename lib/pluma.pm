@@ -10,7 +10,7 @@
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# $Id: pluma.pm,v 1.3 2008/08/11 20:20:03 schneis Exp $
+# $Id: pluma.pm,v 1.8 2008/08/11 20:20:03 schneis Exp $
 
 package pluma;
 
@@ -473,7 +473,7 @@ sub search {
         attrs  => [ '*' ]
     ) || {};
 
-    $user  = { '1' => $user }  if $user->{'cn'};
+    $user  = { '1' => $user }  if $user->{'uid'};
     $group = { '1' => $group } if $group->{'cn'};
 
     my $search = { %{$user}, %{$group} };
