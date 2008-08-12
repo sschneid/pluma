@@ -86,7 +86,8 @@ Web set-up should be relatively simple.  Full Apache set-up is outside of the sc
             AuthLDAPAuthoritative on
             AuthLDAPURL ldaps://ldap.company.com/dc=company,dc=com?uid
 
-            Require valid-user
+            # Only members of the sysadm group get access
+            Require group cn=sysadm,ou=Groups,dc=company,dc=com
 
             Order allow,deny
             Allow from all
