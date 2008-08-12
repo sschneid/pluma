@@ -182,7 +182,9 @@ sub displayUser {
 
     # Hosts
     my ( $host );
-    $user->{'host'} = [ $user->{'host'} ] unless ref $user->{'host'};
+    if ( $user->{'host'} ) {
+        $user->{'host'} = [ $user->{'host'} ] unless ref $user->{'host'};
+    }
     foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
     foreach (
         keys %{$self->{'ldap'}->fetch(
@@ -225,8 +227,10 @@ sub displayUser {
         $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
             if not ref $group->{$g}->{'uniqueMember'}; 
 
+        # Skip groups without members
+        next unless @{$group->{$g}->{'uniqueMember'}} > 1;
+
         foreach ( @{$group->{$g}->{'uniqueMember'}} ) {
-            next unless $group->{1}->{$group->{$g}->{'cn'}};
             $group->{1}->{$group->{$g}->{'cn'}} = 1 if /uid=$uid,/;
         }
 
