@@ -226,6 +226,7 @@ sub displayUser {
             if not ref $group->{$g}->{'uniqueMember'}; 
 
         foreach ( @{$group->{$g}->{'uniqueMember'}} ) {
+            next unless $group->{1}->{$group->{$g}->{'cn'}};
             $group->{1}->{$group->{$g}->{'cn'}} = 1 if /uid=$uid,/;
         }
 
@@ -319,7 +320,7 @@ sub modUser {
         }
     }
 
-    foreach my $attr ( qw/ gidNumber loginShell / ) {
+    foreach my $attr ( qw/ cn gidNumber homeDirectory loginShell mail uidNumber / ) {
         unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
             $self->{'ldap'}->modify(
                 'uid=' . $self->{'arg'}->{'user'} . ','
