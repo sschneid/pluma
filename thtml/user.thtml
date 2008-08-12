@@ -105,29 +105,36 @@
 
           <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
 
+          <input type="hidden" name="loginShellWas" value="<!-- tmpl_var name="loginShell" -->" />
+          <input type="hidden" name="gidNumberWas"  value="<!-- tmpl_var name="gidNumber" -->" />
+
           <input type="hidden" name="cGroups" value="<!-- tmpl_var name="cGroups" -->" />
           <input type="hidden" name="cHosts"  value="<!-- tmpl_var name="cHosts"  -->" />
 
           <div id="content">
-            <div class="objectItem">
-              <div class="attr">Full name:</div>
-              <div class="button"><!-- ### Sync --></div>
-              <div class="valnochg"><!-- tmpl_var name="cn" --></div>
-            </div>
+            <table>
+              <tr>
+                <td width="10%"><div class="attr">Full name:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="cn" --></div></td>
 
-            <div class="objectItem">
-              <div class="attr">E-mail address:</div>
-              <div class="button"><!-- ### Sync --></div>
-              <div class="valnochg"><!-- tmpl_var name="mail" --></div>
-            </div>
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr">E-mail address:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="mail" --></div></td>
+              </tr>
+              <tr>
+                <td width="10%"><div class="attr">Primary group:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="groups" --></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr">Login shell:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="shells" --></div></td>
+              </tr>
+              </tr>
+            </table>
 
             <br />
-
-            <div class="objectItem">
-              <div class="attr">Login shell:</div>
-              <div class="button"></div>
-              <div class="valnochg"><!-- tmpl_var name="shells" --></div>
-            </div>
 
             <table>
               <tr>
