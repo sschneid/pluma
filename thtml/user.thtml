@@ -105,8 +105,12 @@
 
           <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
 
+          <input type="hidden" name="cnWas" value="<!-- tmpl_var name="cn" -->" />
           <input type="hidden" name="loginShellWas" value="<!-- tmpl_var name="loginShell" -->" />
           <input type="hidden" name="gidNumberWas"  value="<!-- tmpl_var name="gidNumber" -->" />
+          <input type="hidden" name="homeDirectoryWas" value="<!-- tmpl_var name="homeDirectory" -->" />
+          <input type="hidden" name="mailWas" value="<!-- tmpl_var name="mail" -->" />
+          <input type="hidden" name="uidNumberWas"  value="<!-- tmpl_var name="uidNumber" -->" />
 
           <input type="hidden" name="cGroups" value="<!-- tmpl_var name="cGroups" -->" />
           <input type="hidden" name="cHosts"  value="<!-- tmpl_var name="cHosts"  -->" />
@@ -115,12 +119,21 @@
             <table>
               <tr>
                 <td width="10%"><div class="attr">Full name:</div></td>
-                <td width="35%"><div class="valnochg"><!-- tmpl_var name="cn" --></div></td>
+                <td width="35%"><div class="valnochg"><input name="cn" value="<!-- tmpl_var name="cn" -->" /></div></td>
 
                 <td width="10%"></td>
 
+                <td width="10%"><div class="attr">UID:</div></td>
+                <td width="35%"><div class="valnochg"><input name="uidNumber" value="<!-- tmpl_var name="uidNumber" -->" /></div></td>
+              </tr>
+              <tr>
                 <td width="10%"><div class="attr">E-mail address:</div></td>
-                <td width="35%"><div class="valnochg"><!-- tmpl_var name="mail" --></div></td>
+                <td width="35%"><div class="valnochg"><input name="mail" value="<!-- tmpl_var name="mail" -->" /></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr">Home directory:</div></td>
+                <td width="35%"><div class="valnochg"><input name="homeDirectory" value="<!-- tmpl_var name="homeDirectory" -->" /></div></td>
               </tr>
               <tr>
                 <td width="10%"><div class="attr">Primary group:</div></td>
