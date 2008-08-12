@@ -81,11 +81,11 @@ sub setup {
         ? $self->start_mode( 'displayUser' )
         : $self->start_mode( 'displayGroup' );
 
-    return( $self );
+    return $self;
 }
 
 sub displaySearch {
-    return( shift->_wrapAll( container => 'search' ) );
+    return shift->_wrapAll( container => 'search' );
 }
 
 sub displayCreate {
@@ -97,7 +97,7 @@ sub displayCreate {
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
-    return( $self->_wrapAll( container => $self->{'arg'}->{'create'} . 'Add' ) );
+    return $self->_wrapAll( container => $self->{'arg'}->{'create'} . 'Add' );
 }
 
 sub displayGroup {
@@ -110,7 +110,7 @@ sub displayGroup {
         filter => 'cn=' . $self->{'arg'}->{'group'},
         attrs  => [ '*' ]
     )
-    || return( 'nomatch' );
+    || return $self->search( search => $self->{'arg'}->{'group'} );
 
     # Is there a description?
     $group->{'description'} ||= '?';
@@ -227,8 +227,8 @@ sub displayUser {
         $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
             if not ref $group->{$g}->{'uniqueMember'}; 
 
-        # Skip groups without members
-        next unless @{$group->{$g}->{'uniqueMember'}} > 1;
+#        # Skip groups without members
+#        next unless @{$group->{$g}->{'uniqueMember'}} > 1;
 
         foreach ( @{$group->{$g}->{'uniqueMember'}} ) {
             $group->{1}->{$group->{$g}->{'cn'}} = 1 if /uid=$uid,/;
@@ -478,8 +478,8 @@ sub search {
         attrs  => [ '*' ]
     ) || {};
 
-    $user  = { '1' => $user }  if $user->{'uid'};
-    $group = { '1' => $group } if $group->{'cn'};
+    $user  = { 'u' => $user }  if $user->{'uid'};
+    $group = { 'g' => $group } if $group->{'cn'};
 
     my $search = { %{$user}, %{$group} };
 
@@ -567,7 +567,7 @@ sub _wrap {
         $template->param( $_ => $arg->{$_} );
     } keys %{$arg};
 
-    return( $template->output() );
+    return $template->output();
 }
 
 sub _wrapAll {
@@ -597,7 +597,7 @@ sub _wrapAll {
 
     $page->param( container => $template->output() );
 
-    return( $page->output() );
+    return $page->output();
 }
 
 1;
