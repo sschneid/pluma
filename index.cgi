@@ -28,5 +28,5 @@ eval {
     $pluma->run();
 };
 
-if ( $@ ) { print "pluma error: $@"; }
+if ( $@ ) { print "Content-type: text/plain\n\n$@"; }
 
