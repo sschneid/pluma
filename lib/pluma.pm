@@ -10,7 +10,7 @@
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# $Id: pluma.pm,v 1.8 2008/08/11 20:20:03 schneis Exp $
+# $Id: pluma.pm,v 1.3 2008/08/13 15:18:29 sschneid Exp $
 
 package pluma;
 
