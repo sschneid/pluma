@@ -184,8 +184,9 @@ sub displayUser {
     my ( $host );
     if ( $user->{'host'} ) {
         $user->{'host'} = [ $user->{'host'} ] unless ref $user->{'host'};
+        foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
+        delete $user->{'host'} if $user->{'host'};
     }
-    foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
     foreach (
         keys %{$self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.Base.Host'},
@@ -196,7 +197,7 @@ sub displayUser {
         $_ =~ s/cn\=(.+?)\,.*/$1/g;
         $host->{0}->{$_} = 1 unless $host->{1}->{$_};
     }
-    delete $user->{'host'};
+
     $user->{'availHosts'} = $self->{'cgi'}->scrolling_list(
         -name => 'availHosts', -values => [ sort keys %{$host->{0}} ],
         -size => 7,            -class  => 'selectBox'
@@ -223,15 +224,13 @@ sub displayUser {
         # Associate labels (CNs) with gidNumbers
         $labels{$group->{$g}->{'gidNumber'}} = $group->{$g}->{'cn'};
 
-        # Push single-user uniqueMember into an array
-        $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
-            if not ref $group->{$g}->{'uniqueMember'}; 
+        if ( $group->{$g}->{'uniqueMember'} ) {
+            $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
+                if not ref $group->{$g}->{'uniqueMember'}; 
 
-#        # Skip groups without members
-#        next unless @{$group->{$g}->{'uniqueMember'}} > 1;
-
-        foreach ( @{$group->{$g}->{'uniqueMember'}} ) {
-            $group->{1}->{$group->{$g}->{'cn'}} = 1 if /uid=$uid,/;
+            foreach ( @{$group->{$g}->{'uniqueMember'}} ) {
+                $group->{1}->{$group->{$g}->{'cn'}} = 1 if /uid=$uid,/;
+            }
         }
 
         $group->{0}->{$group->{$g}->{'cn'}} = 1
