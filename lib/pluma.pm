@@ -123,7 +123,7 @@ sub displayGroup {
         unless ref $group->{'uniqueMember'};
 
     my $filter = '(| ';
-    foreach ( @{$group->{'uniqueMember'}} ) {$filter .= "($1)" if /^(.+?)\,/; }
+    foreach ( @{$group->{'uniqueMember'}} ) { $filter .= "($1)" if /^(.+?)\,/; }
     $filter .= ' )';
 
     my $member = $self->{'ldap'}->fetch(
@@ -512,7 +512,8 @@ sub search {
                 $results .= $self->_wrap(
                     container => 'resultsItem',
                     item      => $search->{$_}->{'uid'} || $search->{$_}->{'cn'},
-                    itemDesc  => $search->{$_}->{'cn'} || '?',
+                    itemDesc  => $search->{$_}->{'description'}
+                              || $search->{$_}->{'cn'} || '?',
                     itemType  => $type
                 )
             }
