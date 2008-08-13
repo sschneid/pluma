@@ -29,10 +29,7 @@ sub setup {
 
     # Read configuration from pluma.cfg
     $self->{'config'} = $self->{'util'}->readConfig( configFile => 'pluma.cfg' )
-    || do {
-        print qq(Error reading configuration file pluma.cfg\n);
-        exit( 1 );
-    };
+    || die qq(Error reading configuration file pluma.cfg\n);
 
     # Read and untaint CGI parameters
     $self->{'cgi'} = $self->query();
@@ -49,19 +46,13 @@ sub setup {
         server => $self->{'config'}->{'ldap.Server'},
         SSL    => $self->{'config'}->{'ldap.SSL'}
     )
-    || do {
-        print qq(Error connecting to $self->{'config'}->{'ldap.Server'}\n);
-        exit( 1 );
-    };
+    || die qq(Error connecting to $self->{'config'}->{'ldap.Server'}\n);
 
     $self->{'ldap'}->bind(
         bindDN   => $self->{'config'}->{'auth.BindDN'},
         password => $self->{'config'}->{'auth.Password'}
     )
-    || do {
-        print qq(Error binding as $self->{'config'}->{'auth.BindDN'}\n);
-        exit( 1 );
-    };
+    || die qq(Error binding as $self->{'config'}->{'auth.BindDN'}\n);
 
     # CGI::Application run-mode initialization
     $self->run_modes( [ qw/
