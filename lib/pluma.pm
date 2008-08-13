@@ -116,11 +116,14 @@ sub displayGroup {
     $group->{'description'} ||= '?';
 
     # Members
+    return $self->_wrapAll( container => 'group', %{$group} )
+        unless $group->{'uniqueMember'};
+
     $group->{'uniqueMember'} = [ $group->{'uniqueMember'} ]
         unless ref $group->{'uniqueMember'};
 
     my $filter = '(| ';
-    foreach ( @{$group->{'uniqueMember'}} ) { $filter .= "($1)" if /^(.+?)\,/; }
+    foreach ( @{$group->{'uniqueMember'}} ) {$filter .= "($1)" if /^(.+?)\,/; }
     $filter .= ' )';
 
     my $member = $self->{'ldap'}->fetch(
@@ -185,7 +188,7 @@ sub displayUser {
     if ( $user->{'host'} ) {
         $user->{'host'} = [ $user->{'host'} ] unless ref $user->{'host'};
         foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
-        delete $user->{'host'} if $user->{'host'};
+        delete $user->{'host'};
     }
     foreach (
         keys %{$self->{'ldap'}->fetch(
