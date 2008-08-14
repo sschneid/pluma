@@ -7,18 +7,45 @@
 
         <div id="mainTitle">Viewing group <!-- tmpl_var name="cn" --></div>
 
-        <div id="content">
-            <div class="objectItem">
-              <div class="attr">Description:</div>
-              <div class="valnochg"><!-- tmpl_var name="description" --></div>
-              <div class="attr">GID:</div>
-              <div class="valnochg"><!-- tmpl_var name="gidNumber" --></div>
-            </div>
+          <form method="post">
+
+          <input type="hidden" name="rm" value="modGroup" />
+
+          <input type="hidden" name="group" value="<!-- tmpl_var name="cn" -->" />
+
+          <input type="hidden" name="descriptionWas" value="<!-- tmpl_var name="description" -->" />
+          <input type="hidden" name="gidNumberWas" value="<!-- tmpl_var name="gidNumber" -->" />
+
+          <div id="content">
+            <table width="50%">
+              <tr>
+                <td width="10%"><div class="attr">Description:</div></td>
+                <td width="35%"><div class="valnochg"><input name="description" value="<!-- tmpl_var name="description" -->" /></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"></td>
+                <td width="35%"></td>
+              <tr>
+                <td width="10%"><div class="attr">GID:</div></td>
+                <td width="35%"><div class="valnochg"><input name="gidNumber" value="<!-- tmpl_var name="gidNumber" -->" /></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"></td>
+                <td width="35%"></td>
+              </tr>
+            <table>
 
             <br />
 
             <div class="objectTitle">Member list:</div>
             <!-- tmpl_var name="members" -->
+
+            <br />
+
+            <input type="submit" class="button" name="" value=" Submit changes " />
+            </form>
 
             <div id="divider">&nbsp;</div>
 

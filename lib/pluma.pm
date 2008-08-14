@@ -60,6 +60,7 @@ sub setup {
         displayGroup
         displayUser
 
+        modGroup
         modUser
 
         create
@@ -254,6 +255,22 @@ sub displayUser {
 
     # Render
     return $self->_wrapAll( container => 'user', %{$user} );
+}
+
+sub modGroup {
+    my $self = shift;
+
+    foreach my $attr ( qw/ description gidNumber / ) {
+        unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
+            $self->{'ldap'}->modify(
+                'cn=' . $self->{'arg'}->{'group'} . ','
+                      . $self->{'config'}->{'ldap.Base.Group'},
+                replace => { $attr => $self->{'arg'}->{$attr} }
+            );
+        }
+    }
+
+    return $self->displayGroup();
 }
 
 sub modUser {
