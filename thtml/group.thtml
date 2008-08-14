@@ -3,6 +3,10 @@
             function delConfirm() {
               return confirm("Are you sure you want to delete this group?");
             }
+
+            function chgConfirm() {
+              return confirm("Changing a group's GID can result in orphaned default user groups.  Are you sure you wish to continue?");
+            }
         </script>
 
         <div id="mainTitle">Viewing group <!-- tmpl_var name="cn" --></div>
@@ -44,7 +48,7 @@
 
             <br />
 
-            <input type="submit" class="button" name="" value=" Submit changes " />
+            <input type="submit" class="button" name="" value=" Submit changes " onClick="return chgConfirm()" />
             </form>
 
             <div id="divider">&nbsp;</div>
