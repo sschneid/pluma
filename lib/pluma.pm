@@ -294,8 +294,10 @@ sub modUser {
                 if ( $chg->{'add'}->{$_} ) {
                     delete $chg->{'add'}->{$_};
                 }
-                else {
-                    $chg->{'delete'}->{$_} = 1;
+                elsif ( $self->{'arg'}->{'availGroups'} ) {
+                    foreach my $g ( split /,/, $self->{'arg'}->{'cGroups'} ) {
+                        $chg->{'delete'}->{$_} = 1 if $_ eq $g;
+                    }
                 }
             }
         }
