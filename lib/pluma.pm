@@ -266,9 +266,6 @@ sub modUser {
         my ( $chg );
 
         for ( $a ) {
-            /cHosts/  and do { next unless $self->{'arg'}->{'userHosts_values'}; };
-            /cGroups/ and do { next unless $self->{'arg'}->{'userGroups_values'}; };
-
             /Hosts/  and do { $chg = \%{$self->{'chg'}->{'host'}}; };
             /Groups/ and do { $chg = \%{$self->{'chg'}->{'group'}}; };
         };
