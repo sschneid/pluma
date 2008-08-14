@@ -104,9 +104,6 @@ sub displayGroup {
     )
     || return $self->search( search => $self->{'arg'}->{'group'} );
 
-    # Is there a description?
-    $group->{'description'} ||= '?';
-
     # Members
     return $self->_wrapAll( container => 'group', %{$group} )
         unless $group->{'uniqueMember'};
