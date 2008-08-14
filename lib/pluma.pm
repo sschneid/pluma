@@ -408,6 +408,29 @@ sub delete {
             'uid=' . $self->{'arg'}->{'user'} . ','
                    . $self->{'config'}->{'ldap.Base.User'}
         );
+    
+        my $filter = 'uniqueMember=uid=' . $self->{'arg'}->{'user'}
+            . ',' . $self->{'config'}->{'ldap.Base.User'};
+
+        my $group = $self->{'ldap'}->fetch(
+            base   => $self->{'config'}->{'ldap.Base.Group'},
+            filter => $filter,
+            attrs  => [ 'cn' ]
+        );
+
+        if ( $group ) {
+            $group = { 'g' => $group } if $group->{'cn'};
+
+            foreach my $g ( keys %{$group} ) {
+                $self->{'ldap'}->modify(
+                    'cn=' . $group->{$g}->{'cn'} . ','
+                          . $self->{'config'}->{'ldap.Base.Group'},
+                    delete => { 'uniqueMember' =>
+                        'uid=' . $self->{'arg'}->{'user'} . ','
+                               . $self->{'config'}->{'ldap.Base.User'} }
+                );
+            }
+        }
 
         delete $self->{'arg'}->{'user'};
     }
