@@ -293,7 +293,6 @@ sub modUser {
             else {
                 my ( $o );
                 if ( $a =~ /c(\w+)/ ) { $o = $1; }
-                print "o: [$o]\n";
 
                 if ( $chg->{'add'}->{$_} ) {
                     delete $chg->{'add'}->{$_};
