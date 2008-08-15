@@ -21,7 +21,7 @@
           <input type="hidden" name="gidNumberWas" value="<!-- tmpl_var name="gidNumber" -->" />
 
           <div id="content">
-            <table width="50%">
+            <table>
               <tr>
                 <td width="10%"><div class="attr">Description:</div></td>
                 <td width="35%"><div class="valnochg"><input name="description" value="<!-- tmpl_var name="description" -->" /></div></td>
@@ -43,8 +43,21 @@
 
             <br />
 
-            <div class="objectTitle">Member list:</div>
-            <!-- tmpl_var name="members" -->
+            <table>
+              <tr>
+                <td width="45%" valign="top">
+                  <div class="objectTitle">Member of this group:</div>
+                  <!-- tmpl_var name="members" -->
+                </td>
+
+                <td width="10%"></td>
+
+                <td width="45%" valign="top">
+                  <div class="objectTitle">Users with this group as their primary GID:</div>
+                  <!-- tmpl_var name="primary" -->
+                </td>
+              </tr>
+            </table>
 
             <br />
 

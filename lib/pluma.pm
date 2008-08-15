@@ -104,6 +104,26 @@ sub displayGroup {
     )
     || return $self->search( search => $self->{'arg'}->{'group'} );
 
+    # Primary
+    my $primary = $self->{'ldap'}->fetch(
+        base   => $self->{'config'}->{'ldap.Base.User'},
+        filter => 'gidNumber=' . $group->{'gidNumber'},
+        attrs  => [ 'uid', 'cn' ]
+    );
+
+    if ( $primary ) {
+        if ( $primary->{'uid'} ) { $primary = { p => $primary } };
+
+        foreach ( sort keys %{$primary} ) {
+            $group->{'primary'} .= $self->_wrap(
+                container => 'resultsItem',
+                item      => $primary->{$_}->{'uid'},
+                itemDesc  => $primary->{$_}->{'cn'} || '?',
+                itemType  => 'user'
+            );
+        }
+    }
+
     # Members
     return $self->_wrapAll( container => 'group', %{$group} )
         unless $group->{'uniqueMember'};
