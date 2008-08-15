@@ -288,6 +288,7 @@ sub modUser {
             next if $_ eq '*';
 
             if ( $a =~ /values/ ) {
+                # Add it
                 $chg->{'add'}->{$_} = 1;
             }
             else {
@@ -295,8 +296,12 @@ sub modUser {
                     delete $chg->{'add'}->{$_};
                 }
                 elsif ( $self->{'arg'}->{'availGroups'} ) {
-                    foreach my $g ( split /,/, $self->{'arg'}->{'cGroups'} ) {
-                        $chg->{'delete'}->{$_} = 1 if $_ eq $g;
+                    if ( $a =~ /c(\w+)/ && !$self->{'arg'}->{"user$1_values"} ) {
+                        $chg->{'delete'}->{$_} = 1 
+                            if $self->{'arg'}->{'availGroups'} eq $_;
+                    }
+                    else {
+                        $chg->{'delete'}->{$_} = 1;
                     }
                 }
             }
