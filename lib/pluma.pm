@@ -123,10 +123,22 @@ sub displayGroup {
             );
         }
     }
+    else {
+        $group->{'primary'} = $self->_wrap(
+            container => 'error',
+            error     => 'None found'
+        );
+    }
 
     # Members
-    return $self->_wrapAll( container => 'group', %{$group} )
-        unless $group->{'uniqueMember'};
+    unless ( $group->{'uniqueMember'} ) {
+        $group->{'members'} = $self->_wrap(
+            container => 'error',
+            error     => 'None found'
+        );
+
+        return $self->_wrapAll( container => 'group', %{$group} );
+    }
 
     $group->{'uniqueMember'} = [ $group->{'uniqueMember'} ]
         unless ref $group->{'uniqueMember'};
@@ -140,9 +152,6 @@ sub displayGroup {
         filter => $filter,
         attrs  => [ 'cn' ]
     );
-
-    # No need to continue if the group doesn't have any members
-    return $self->_wrapAll( container => 'group', %{$group} ) unless $member;
 
     # Single-member group support
     if ( $member->{'cn'} ) {
@@ -541,7 +550,11 @@ sub search {
 
     unless ( keys %{$search} ) {
         return $self->_wrapAll(
-            container => 'results', results => 'No matches found.'
+            container => 'results',
+            results   => $self->_wrap(
+                container => 'error',
+                error     => 'No matches found'
+            )
         );
     }
 

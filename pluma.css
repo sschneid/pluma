@@ -83,6 +83,7 @@ select                { color: #666; }
 
 .resultsItem {
     margin:             8px 0px 5px 0px;
+    color:              #666;
 }
 
 .resultsItem a {
