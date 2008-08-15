@@ -288,17 +288,20 @@ sub modUser {
             next if $_ eq '*';
 
             if ( $a =~ /values/ ) {
-                # Add it
                 $chg->{'add'}->{$_} = 1;
             }
             else {
+                my ( $o );
+                if ( $a =~ /c(\w+)/ ) { $o = $1; }
+                print "o: [$o]\n";
+
                 if ( $chg->{'add'}->{$_} ) {
                     delete $chg->{'add'}->{$_};
                 }
-                elsif ( $self->{'arg'}->{'availGroups'} ) {
-                    if ( $a =~ /c(\w+)/ && !$self->{'arg'}->{"user$1_values"} ) {
+                elsif ( $self->{'arg'}->{'avail' . $o} ) {
+                    unless ( $self->{'arg'}->{'user' . $o . '_values'} ) {
                         $chg->{'delete'}->{$_} = 1 
-                            if $self->{'arg'}->{'availGroups'} eq $_;
+                            if $self->{'arg'}->{'avail' . $o} eq $_;
                     }
                     else {
                         $chg->{'delete'}->{$_} = 1;
