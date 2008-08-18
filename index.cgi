@@ -12,7 +12,7 @@
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
 #
-# $Id: index.cgi,v 1.1.1.1 2008/07/28 17:58:46 sschneid Exp $
+# $Id: index.cgi,v 1.2 2008/08/18 14:17:54 sschneid Exp $
 
 BEGIN { unshift @INC, './lib'; }
 
