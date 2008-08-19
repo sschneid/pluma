@@ -1,6 +1,6 @@
 
                     <div class="resultsItem">
-                        <div class="icon"><img src="/img/error.png" /></div>
+                        <div class="icon"><img src="/img/error.png" alt="*" /></div>
                         <div class="desc"><!-- tmpl_var name="error" --></div>
                     </div>
 

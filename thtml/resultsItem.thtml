@@ -1,7 +1,7 @@
 
                     <div class="resultsItem">
                         <a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->">
-                        <div class="icon"><img src="/img/<!-- tmpl_var name="itemType" -->.png" /></div>
+                        <div class="icon"><img src="/img/<!-- tmpl_var name="itemType" -->.png" alt="*" /></div>
                         <div class="item"><!-- tmpl_var name="item" --></div>
                         <div class="desc"><!-- tmpl_var name="itemDesc" --></div>
                         </a>
