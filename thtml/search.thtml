@@ -1,10 +1,10 @@
 
         <div id="mainTitle">Search</div>
 
-            <form method="post">
-            <input type="hidden" name="rm" value="search">
+            <form method="post" action="">
 
             <div id="content">
+                <input type="hidden" name="rm" value="search" />
                 <input name="search" /> &nbsp;&nbsp;
                 <input type="submit" class="button" name="" value=" Search " />
 

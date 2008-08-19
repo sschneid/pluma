@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 
@@ -11,20 +11,20 @@
     <body>
         <div id="page">
 
-        <h1>
+        <div id="head">
           <table>
             <tr>
               <td>
                   <a href="/?rm=search"><img src="/img/search.png" alt="Search" /></a>
-                  <a href="/?rm=displayCreate&create=user"><img src="/img/user_add.png" alt="Add user" /></a>
-                  <a href="/?rm=displayCreate&create=group"><img src="/img/group_add.png" alt="Add group" /></a>
+                  <a href="/?rm=displayCreate&amp;create=user"><img src="/img/user_add.png" alt="Add user" /></a>
+                  <a href="/?rm=displayCreate&amp;create=group"><img src="/img/group_add.png" alt="Add group" /></a>
               </td>
               <td align="right">
                   pluma &nbsp;:&nbsp; LDAP User Management
               </td>
             </tr>
           </table>
-        </h1>
+        </div>
 
         <h2> &nbsp; </h2>
 

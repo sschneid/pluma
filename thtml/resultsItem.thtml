@@ -1,9 +1,7 @@
 
                     <div class="resultsItem">
-                        <a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->">
-                        <div class="icon"><img src="/img/<!-- tmpl_var name="itemType" -->.png" alt="*" /></div>
-                        <div class="item"><!-- tmpl_var name="item" --></div>
-                        <div class="desc"><!-- tmpl_var name="itemDesc" --></div>
-                        </a>
+                        <div class="icon"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><img src="/img/<!-- tmpl_var name="itemType" -->.png" alt="*" /></a></div>
+                        <div class="item"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="item" --></a></div>
+                        <div class="desc"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="itemDesc" --></a></div>
                     </div>
 

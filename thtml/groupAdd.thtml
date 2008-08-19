@@ -1,11 +1,12 @@
 
         <div id="mainTitle">Create new group</div>
 
-            <form method="post">
-            <input type="hidden" name="rm" value="create">
-            <input type="hidden" name="create" value="group">
-
             <div id="content">
+
+            <form method="post" action="">
+                <input type="hidden" name="rm" value="create" />
+                <input type="hidden" name="create" value="group" />
+
                 <div class="objectItem">
                     <div class="attr">Group name:</div>
                     <div class="valnochg"><input name="cn" /></div>
@@ -16,7 +17,7 @@
                 <br />
 
                 <input type="submit" class="button" name="" value=" Create " />
-           </div>
-
            </form>
+
+           </div>
 

@@ -1,11 +1,12 @@
 
         <div id="mainTitle">Create new user</div>
 
-            <form method="post">
-            <input type="hidden" name="rm" value="create">
-            <input type="hidden" name="create" value="user">
-
             <div id="content">
+
+            <form method="post" action="">
+              <input type="hidden" name="rm" value="create" />
+              <input type="hidden" name="create" value="user" />
+
                 <div class="objectItem">
                     <div class="attr">Username (login):</div>
                     <div class="valnochg"><input name="uid" /></div>
@@ -16,7 +17,8 @@
                 <br />
 
                 <input type="submit" class="button" name="" value=" Create " />
+           </form>
+
            </div>
 
-           </form>
 
