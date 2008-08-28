@@ -19,6 +19,8 @@ use base 'CGI::Application';
 use pluma::LDAP;
 use pluma::Util;
 
+use POSIX qw( strftime );
+
 use strict;
 use warnings;
 
@@ -54,6 +56,13 @@ sub setup {
     )
     || die qq(Error binding as $self->{'config'}->{'auth.BindDN'}\n);
 
+    # Logging
+    if ( $self->{'config'}->{'audit.log'} ) {
+        if ( open( LOG, ">>$self->{'config'}->{'audit.log'}" ) ) {
+            $self->{'audit'} = 1;
+        }
+    }
+
     # CGI::Application run-mode initialization
     $self->run_modes( [ qw/
         displayCreate
@@ -74,6 +83,12 @@ sub setup {
         : $self->start_mode( 'displayGroup' );
 
     return $self;
+}
+
+sub teardown {
+    my $self = shift;
+
+    close( LOG ) if $self->{'audit'};
 }
 
 sub displaySearch {
@@ -293,6 +308,15 @@ sub modGroup {
                       . $self->{'config'}->{'ldap.Base.Group'},
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
+
+            $self->_log(
+                what => 'g:' . $self->{'arg'}->{'group'},
+                item => $attr,
+                object => 
+                    $self->{'arg'}->{$attr}
+                  . ' (was ' . $self->{'arg'}->{$attr . 'Was'} . ')',
+                action => 'modify',
+            ) if $self->{'audit'};
         }
     }
 
@@ -350,6 +374,13 @@ sub modUser {
                                    . $self->{'config'}->{'ldap.Base.User'},
                             $action => { 'host' => $obj }
                         );
+
+                        $self->_log(
+                            what => 'u:' . $self->{'arg'}->{'user'},
+                            item => 'host',
+                            object => $obj,
+                            action => $action,
+                        ) if $self->{'audit'};
                     };
 
                     /group/ and do {
@@ -360,6 +391,13 @@ sub modUser {
                                 'uid=' . $self->{'arg'}->{'user'} . ','
                                        . $self->{'config'}->{'ldap.Base.User'} }
                         );
+
+                        $self->_log(
+                            what => 'u:' .  $self->{'arg'}->{'user'},
+                            item => 'group',
+                            object => $obj,
+                            action => $action,
+                        ) if $self->{'audit'};
                     };
                 };
             }
@@ -373,6 +411,15 @@ sub modUser {
                        . $self->{'config'}->{'ldap.Base.User'},
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
+
+            $self->_log(
+                what => 'u:' . $self->{'arg'}->{'user'},
+                item => $attr,
+                object => 
+                    $self->{'arg'}->{$attr}
+                  . ' (was ' . $self->{'arg'}->{$attr . 'Was'} . ')',
+                action => 'modify',
+            ) if $self->{'audit'};
         }
     }
 
@@ -616,6 +663,22 @@ sub _getNextNum {
     @n = sort { $b <=> $a } @n;
 
     return ++$n[0];
+}
+
+sub _log {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $stamp = '[' . strftime( "%e/%b/%Y:%H:%M:%S", localtime() ) . ']';
+
+    print LOG join( ' ',
+        $ENV{'REMOTE_USER'}, $stamp,
+        $arg->{'what'} . ':', $arg->{'item'}, $arg->{'action'}, $arg->{'object'}
+    ) . "\n";
+
+    return 1;
 }
 
 sub _wrap {
