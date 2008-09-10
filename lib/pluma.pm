@@ -466,6 +466,11 @@ sub create {
                 posixAccount
                 account
             / ];
+
+            $self->_log(
+                what => 'u:' .  $self->{'arg'}->{'user'},
+                action => 'create'
+            ) if $self->{'audit'};
         };
 
         /group/ && do {
@@ -488,6 +493,11 @@ sub create {
                 groupOfNames
                 groupOfUniqueNames
             / ];
+
+            $self->_log(
+                what => 'g:' .  $self->{'arg'}->{'group'},
+                action => 'create'
+            ) if $self->{'audit'};
         };
     }
 
@@ -531,6 +541,11 @@ sub delete {
             }
         }
 
+        $self->_log(
+            what => 'u:' .  $self->{'arg'}->{'user'},
+            action => 'delete'
+        ) if $self->{'audit'};
+
         delete $self->{'arg'}->{'user'};
     }
 
@@ -539,6 +554,11 @@ sub delete {
             'cn=' . $self->{'arg'}->{'group'} . ','
                   . $self->{'config'}->{'ldap.Base.Group'}
         );
+
+        $self->_log(
+            what => 'g:' .  $self->{'arg'}->{'group'},
+            action => 'delete'
+        ) if $self->{'audit'};
 
         delete $self->{'arg'}->{'group'};
     }
@@ -561,6 +581,11 @@ sub password {
             userPassword => '{crypt}' . $pwCrypt
         }
     );
+
+    $self->_log(
+        what => 'u:' .  $self->{'arg'}->{'user'},
+        action => 'password modify'
+    ) if $self->{'audit'};
 
     return $self->displayUser();
 }
@@ -673,10 +698,18 @@ sub _log {
 
     my $stamp = '[' . strftime( "%e/%b/%Y:%H:%M:%S", localtime() ) . ']';
 
-    print LOG join( ' ',
-        $ENV{'REMOTE_USER'}, $stamp,
-        $arg->{'what'} . ':', $arg->{'item'}, $arg->{'action'}, $arg->{'object'}
-    ) . "\n";
+    if ( $arg->{'item'} && $arg->{'object'} ) {
+        print LOG join( ' ',
+            $ENV{'REMOTE_USER'}, $stamp,
+            $arg->{'what'} . ':',
+            $arg->{'item'}, $arg->{'action'}, $arg->{'object'}
+        ) . "\n";
+    }
+    else {
+        print LOG join( ' ',
+            $ENV{'REMOTE_USER'}, $stamp, $arg->{'what'} . ': ' . $arg->{'action'}
+        ) . "\n";
+    }
 
     return 1;
 }
