@@ -118,7 +118,7 @@
                   <form method="post" action="">
                     <input type="hidden" name="rm" value="delete" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
-                    <input type="submit" class="button" name="" value=" Delete this user " onclick="return delConfirm()" />
+                    <input type="submit" class="button" name="" value=" Delete this user " onclick="return delUserConfirm()" />
                   </form>
                 </td>
               </tr>

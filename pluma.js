@@ -67,7 +67,11 @@ function findFormObject(name, doc) {
   return null;
 }
 
-function delConfirm() {
+function delGroupConfirm() {
+  return confirm("Are you sure you want to delete this group?");
+}
+
+function delUserConfirm() {
   return confirm("Are you sure you want to delete this user?");
 }
 
