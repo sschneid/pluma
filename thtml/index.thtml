@@ -15,9 +15,9 @@
           <table>
             <tr>
               <td>
-                  <a href="/?rm=search"><img src="/img/search.png" alt="Search" /></a>
-                  <a href="/?rm=displayCreate&amp;create=user"><img src="/img/user_add.png" alt="Add user" /></a>
-                  <a href="/?rm=displayCreate&amp;create=group"><img src="/img/group_add.png" alt="Add group" /></a>
+                  <a href="?rm=search"><img src="img/search.png" alt="Search" /></a>
+                  <a href="?rm=displayCreate&amp;create=user"><img src="img/user_add.png" alt="Add user" /></a>
+                  <a href="?rm=displayCreate&amp;create=group"><img src="img/group_add.png" alt="Add group" /></a>
               </td>
               <td align="right">
                   pluma &nbsp;:&nbsp; LDAP User Management
