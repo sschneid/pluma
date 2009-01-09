@@ -253,6 +253,8 @@ sub displayUser {
             attrs  => [ 'cn', 'gidNumber', 'uniqueMember' ]
     )};
 
+    $group = { $group->{'cn'} => $group } if $group->{'cn'};
+
     my ( %labels );
     foreach my $g ( keys %{$group} ) {
         my $uid = $user->{'uid'};
