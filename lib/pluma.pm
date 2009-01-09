@@ -223,13 +223,16 @@ sub displayUser {
         foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
         delete $user->{'host'};
     }
-    foreach (
-        keys %{$self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.Host'},
-            filter => 'objectClass=ipHost',
-            attrs  => [ 'cn' ]
-        )}
-    ) {
+
+    my $hosts = $self->{'ldap'}->fetch(
+        base   => $self->{'config'}->{'ldap.Base.Host'},
+        filter => 'objectClass=ipHost',
+        attrs  => [ 'cn' ]
+    );
+
+    $hosts = { $hosts->{'cn'} => $hosts } if $hosts->{'cn'};
+
+    foreach ( keys %{$hosts} ) {
         $_ =~ s/cn\=(.+?)\,.*/$1/g;
         $host->{0}->{$_} = 1 unless $host->{1}->{$_};
     }
