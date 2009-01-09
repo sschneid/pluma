@@ -230,11 +230,13 @@ sub displayUser {
         attrs  => [ 'cn' ]
     );
 
-    $hosts = { $hosts->{'cn'} => $hosts } if $hosts->{'cn'};
+    if ( $hosts ) {
+        $hosts = { $hosts->{'cn'} => $hosts } if $hosts->{'cn'};
 
-    foreach ( keys %{$hosts} ) {
-        $_ =~ s/cn\=(.+?)\,.*/$1/g;
-        $host->{0}->{$_} = 1 unless $host->{1}->{$_};
+        foreach ( keys %{$hosts} ) {
+            $_ =~ s/cn\=(.+?)\,.*/$1/g;
+            $host->{0}->{$_} = 1 unless $host->{1}->{$_};
+        }
     }
 
     $user->{'availHosts'} = $self->{'cgi'}->scrolling_list(
@@ -249,14 +251,15 @@ sub displayUser {
     $user->{'cHosts'} = join( ',', sort keys %{$host->{1}} );
 
     # Groups
-    my ( $group );
-    %{$group} = %{$self->{'ldap'}->fetch(
+    my $group = $self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.Base.Group'},
             filter => 'objectClass=posixGroup',
             attrs  => [ 'cn', 'gidNumber', 'uniqueMember' ]
-    )};
+    );
 
-    $group = { $group->{'cn'} => $group } if $group->{'cn'};
+    $group = { $group->{'cn'} => $group } if $group && $group->{'cn'};
+
+    $group ||= {};
 
     my ( %labels );
     foreach my $g ( keys %{$group} ) {
