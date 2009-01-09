@@ -22,9 +22,9 @@ pluma reads in most of it's configuration directives through a flat text configr
         $ldap.Server "ldap.$domain"
         $ldap.SSL: "1"
 
-* LDAP DN set-up
+* LDAP OU set-up
 
-    - The base DNs for users, hosts, and groups must all be set-up within the configuration file.
+    - The base OUs for users, hosts, and groups must all be set-up within the configuration file.
 
     - Example:
 
@@ -35,7 +35,7 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * LDAP bind account
 
-    - An LDAP account with sufficient access to the user, host, and groups must be set-up and specified.
+    - An LDAP account with sufficient read/write access to the user, host, and group OUs must be set-up and specified.
 
     - Example:
 
