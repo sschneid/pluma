@@ -614,7 +614,8 @@ sub search {
         base   => $self->{'config'}->{'ldap.Base.User'},
         filter =>
             '(| (uid=' . $self->{'arg'}->{'search'} . '*)'
-             . '(cn='  . $self->{'arg'}->{'search'} . '*) )',
+             . '(cn='  . $self->{'arg'}->{'search'} . '*)'
+             . '(sn='  . $self->{'arg'}->{'search'} . '*) )',
         attrs  => [ '*' ]
     ) || {};
     my $group = $self->{'ldap'}->fetch(
