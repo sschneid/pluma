@@ -12,14 +12,12 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * LDAP server information
 
-    - $domain is the DNS domain name of the LDAP server
     - $ldap.Server is the FQDN of the LDAP server
     - $ldap.SSL turns SSL on (1) or off (0)
 
     - Example:
 
-        $domain: "company.com"
-        $ldap.Server "ldap.$domain"
+        $ldap.Server "ldap.company.com"
         $ldap.SSL: "1"
 
 * LDAP OU set-up
