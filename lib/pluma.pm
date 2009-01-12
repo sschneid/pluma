@@ -682,6 +682,9 @@ sub _getNextNum {
         attrs  => [ $arg->{'unit'} . 'Number' ]
     );
 
+    $nums = { $nums->{$arg->{'unit'} . 'Number'} => $nums } 
+        if $nums->{$arg->{'unit'} . 'Number'};
+
     my ( @n );
 
     foreach (
