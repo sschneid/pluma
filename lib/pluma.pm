@@ -577,17 +577,16 @@ sub delete {
 sub password {
     my $self = shift;
 
-    my $pwSalt = join '',
-        ('.', '/', 0..9, 'A'..'Z', 'a'..'z')[rand 64, rand 64];
-
-    my $pwCrypt = crypt($self->{'arg'}->{'password'}, $pwSalt);
+    my $pwCrypt = $self->{'util'}->pwEncrypt(
+        text   => $self->{'arg'}->{'password'},
+        digest => $self->{'config'}->{'pw.Encrypt'}
+    )
+    || die qq(Error attempting to encrypt password\n);
 
     $self->{'ldap'}->modify(
         'uid=' . $self->{'arg'}->{'user'} . ','
                . $self->{'config'}->{'ldap.Base.User'},
-        replace => {
-            userPassword => '{crypt}' . $pwCrypt
-        }
+        replace => { userPassword => $pwCrypt }
     );
 
     $self->_log(
