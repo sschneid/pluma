@@ -9,8 +9,6 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
-#
-# $Id: LDAP.pm,v 1.1.1.1 2008/07/28 17:58:46 sschneid Exp $
 
 package pluma::LDAP;
 
