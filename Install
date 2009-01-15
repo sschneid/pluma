@@ -40,6 +40,22 @@ pluma reads in most of it's configuration directives through a flat text configr
         $auth.BindDN: "uid=pluma,$ldap.Base.User"
         $auth.Password: "plum4p455w0rd!"
 
+* Password encryption
+
+    - Valid userPassword encryptions options are "crypt" (the default), "sha", and "ssha".  Digest::SHA1 and MIME::Base64 are required for SHA/SSHA.
+
+    - Example:
+
+        $pw.Encrypt: "crypt"
+
+* Audit logging
+
+    - All modification actions can be written to an audit log.  Make sure that the webserver user has access to write to this file.
+
+    - Example:
+
+        $audit.log: "/var/log/httpd/pluma-audit_log"
+
 * LDAP defaults
 
     - Default shells (@shells) and GID ($default.GID) must both be set.
