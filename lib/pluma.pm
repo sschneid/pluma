@@ -469,7 +469,10 @@ sub create {
                 unit => 'uid'
             );
 
-            $create->{'attr'}->{'gidNumber'}   = $self->{'config'}->{'default.GID'};
+            $self->{'config'}->{'default.GID'} ||= '100';
+            $create->{'attr'}->{'gidNumber'}
+                = $self->{'config'}->{'default.GID'};
+
             $create->{'attr'}->{'objectClass'} = [ qw/
                 top
                 person
