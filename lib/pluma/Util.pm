@@ -9,8 +9,6 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
-#
-# $Id: Util.pm,v 1.1.1.1 2008/07/28 17:58:46 sschneid Exp $
 
 package pluma::Util;
 
@@ -20,6 +18,50 @@ use strict;
 use warnings;
 
 sub new { return bless {}, shift; }
+
+sub pwEncrypt {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    ( $arg->{'text'} && $arg->{'digest'} ) || return( 0 );
+
+    my $salt = join '',
+        ('.', '/', 0..9, 'A'..'Z', 'a'..'z')[rand 64, rand 64];
+
+    my ( $pwCrypt );
+
+    for ( $arg->{'digest'} ) {
+        ( /^sha$/ || /^ssha$/ ) && do {
+            return( 0 ) unless ( eval "require Digest::SHA1" );
+            return( 0 ) unless ( eval "require MIME::Base64" );
+
+            my $sha1 = Digest::SHA1->new();
+            $sha1->add( $arg->{'text'} );
+
+            /^sha$/ && do {
+                $pwCrypt = '{sha}'  . MIME::Base64::encode_base64(
+                    $sha1->digest(), ''
+                );
+            };
+
+            /^ssha$/ && do {
+                $sha1->add( $salt );
+                $pwCrypt = '{ssha}' . MIME::Base64::encode_base64(
+                    $sha1->digest() . $salt, ''
+                );
+            };
+
+            last;
+        };
+
+        # Default to crypt
+        $pwCrypt = '{crypt}' . crypt( $self->{'arg'}->{'password'}, $salt );
+    }
+
+    return( $pwCrypt );
+}
 
 sub readConfig {
     my $self = shift;
