@@ -450,10 +450,14 @@ sub create {
             $create->{'dn'} = 'uid=' . $self->{'arg'}->{'uid'} . ','
                 . $self->{'config'}->{'ldap.Base.User'};
 
-            $create->{'attr'}->{'cn'}= $self->{'arg'}->{'cn'};
+            $create->{'attr'}->{'cn'}    = $self->{'arg'}->{'cn'};
+            $create->{'attr'}->{'gecos'} = $self->{'arg'}->{'cn'};
 
             $create->{'attr'}->{'sn'} = $create->{'attr'}->{'cn'};
             $create->{'attr'}->{'sn'} =~ s/^.+?(\w+)$/$1/;
+
+            $create->{'attr'}->{'givenName'} = $create->{'attr'}->{'cn'};
+            $create->{'attr'}->{'givenName'} =~ s/^(\w+).+?$/$1/;
 
             $create->{'attr'}->{'homeDirectory'} = '/home/'
                 . $self->{'arg'}->{'uid'};
