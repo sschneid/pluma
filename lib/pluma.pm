@@ -459,8 +459,10 @@ sub create {
             $create->{'attr'}->{'givenName'} = $create->{'attr'}->{'cn'};
             $create->{'attr'}->{'givenName'} =~ s/^(\w+).+?$/$1/;
 
-            $create->{'attr'}->{'homeDirectory'} = '/home/'
-                . $self->{'arg'}->{'uid'};
+            $self->{'config'}->{'prefix.Home'} ||= '/home/';
+            $self->{'config'}->{'prefix.Home'} .= '/' unless /\/$/;
+            $create->{'attr'}->{'homeDirectory'} =
+                $self->{'config'}->{'prefix.Home'} . $self->{'arg'}->{'uid'};
 
             $create->{'attr'}->{'uidNumber'} = $self->_getNextNum(
                 base => $self->{'config'}->{'ldap.Base.User'},
