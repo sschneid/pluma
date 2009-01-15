@@ -1,5 +1,13 @@
 Revision history of pluma
 
+1.5
+* Thu Jan 15 2008 Scott Schneider <sschneid@gmail.com>
+- Support for SHA and SSHA userPassword encryption
+- Surname (sn) added to user search path
+- Bug fixes:
+    - Several things broke when deployed in non-vhost environments
+    - Null and singular host/group availability
+
 1.4
 * Mon Aug 18 2008 Scott Schneider <sschneid@gmail.com>
 - Added ability to change group's description and gidNumber 
@@ -27,3 +35,4 @@ Revision history of pluma
 1.1
 * Mon July 28 2008 Scott Schneider <sschneid@gmail.com>
 - initial changelog created
+
