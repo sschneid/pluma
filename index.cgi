@@ -11,8 +11,6 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
-#
-# $Id: index.cgi,v 1.2 2008/08/18 14:17:54 sschneid Exp $
 
 BEGIN { unshift @INC, './lib'; }
 
