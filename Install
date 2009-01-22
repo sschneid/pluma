@@ -58,13 +58,15 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * LDAP defaults
 
-    - Default shells (@shells), GID ($default.GID), and homeDirectory prefix ($prefix.Home) must be set.
+    - Default shells (@shells), GID ($default.GID), mail format ($mail.Format) and homeDirectory prefix ($prefix.Home) can be set.  Defaults are used if values are not set.
+    - Valid values in $mail.Format are '%givenName', '%sn', and '%uid'.
 
     - Example:
 
         @shells: "/bin/bash /bin/ksh"
         $default.GID: "100"
         $prefix.Home: "/home"
+        $mail.Format: "%uid@company.com"
 
 * Internal LDAP limits
 
