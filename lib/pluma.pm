@@ -468,6 +468,17 @@ sub create {
             $create->{'attr'}->{'givenName'} = $create->{'attr'}->{'cn'};
             $create->{'attr'}->{'givenName'} =~ s/^(\w+).+?$/$1/;
 
+            $create->{'attr'}->{'uid'} = $self->{'arg'}->{'uid'};
+
+            if ( $self->{'config'}->{'mail.Format'} ) {
+                $create->{'attr'}->{'mail'} = $self->{'config'}->{'mail.Format'};
+
+                foreach ( qw/ sn givenName uid / ) {
+                    $create->{'attr'}->{'mail'}
+                        =~ s/\%$_/$create->{'attr'}->{$_}/g;
+                }
+            }
+
             $self->{'config'}->{'prefix.Home'} ||= '/home/';
             $self->{'config'}->{'prefix.Home'} .= '/' unless /\/$/;
             $create->{'attr'}->{'homeDirectory'} =
