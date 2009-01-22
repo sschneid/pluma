@@ -166,6 +166,15 @@ sub displayGroup {
         attrs  => [ 'cn' ]
     );
 
+    unless ( $member ) {
+        $group->{'members'} = $self->_wrap(
+            container => 'error',
+            error     => 'None found'
+        );
+
+        return $self->_wrapAll( container => 'group', %{$group} );
+    }
+
     # Single-member group support
     if ( $member->{'cn'} ) {
         my $uid = $self->{'ldap'}->fetch(
