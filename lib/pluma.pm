@@ -216,6 +216,9 @@ sub displayUser {
     || return $self->search( search => $self->{'arg'}->{'user'} );
 
     # Login shells
+    unless ( $self->{'config'}->{'shells'} ) {
+        push @{$self->{'config'}->{'shells'}}, '/bin/false';
+    }
     $user->{'shells'} = $self->{'cgi'}->popup_menu(
         -name    => 'loginShell',
         -class   => 'dropBox',
