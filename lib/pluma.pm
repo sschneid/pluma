@@ -56,7 +56,7 @@ sub setup {
 
     # Logging
     if ( $self->{'config'}->{'audit.log'} ) {
-        if ( open( LOG, ">>$self->{'config'}->{'audit.log'}" ) ) {
+        if ( open( LOG, "+>>$self->{'config'}->{'audit.log'}" ) ) {
             $self->{'audit'} = 1;
         }
     }
