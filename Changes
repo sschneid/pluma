@@ -1,5 +1,13 @@
 Revision history of pluma
 
+1.6
+* Thu Jan 22 2008 Scott Schneider <sschneid@gmail.com>
+- Configurable homeDirectory prefix and email address format
+- Bug fixes:
+    - Attributes givenName and gecos weren't being populated for new users
+    - Display of groups with no/orphaned users
+    - Fixed 'crypt' encryption method broken in 1.5
+
 1.5
 * Thu Jan 15 2008 Scott Schneider <sschneid@gmail.com>
 - Support for SHA and SSHA userPassword encryption
