@@ -57,7 +57,7 @@ sub pwEncrypt {
         };
 
         # Default to crypt
-        $pwCrypt = '{crypt}' . crypt( $self->{'arg'}->{'text'}, $salt );
+        $pwCrypt = '{crypt}' . crypt( $arg->{'text'}, $salt );
     }
 
     return( $pwCrypt );
