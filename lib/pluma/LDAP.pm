@@ -102,4 +102,35 @@ sub delete { return shift->{'ldap'}->delete( @_ ); }
 
 sub modify { return shift->{'ldap'}->modify( @_ ); }
 
+sub getNextNum {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $nums = $self->fetch(
+        base   => $arg->{'base'},
+        filter => '(' . $arg->{'unit'} . 'Number>=100)',
+        attrs  => [ $arg->{'unit'} . 'Number' ]
+    );
+
+    $nums = { $nums->{$arg->{'unit'} . 'Number'} => $nums }
+        if $nums->{$arg->{'unit'} . 'Number'};
+
+    my ( @n );
+
+    foreach (
+        sort {
+            $nums->{$a}->{$arg->{'unit'} . 'Number'} <=>
+            $nums->{$b}->{$arg->{'unit'} . 'Number'}
+        } keys %{$nums}
+                                                        ) {
+        push @n, $nums->{$_}->{$arg->{'unit'} . 'Number'};
+    }
+
+    @n = sort { $b <=> $a } @n;
+
+    return( ++$n[0] );
+}
+
 1;
