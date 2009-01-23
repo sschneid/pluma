@@ -17,8 +17,6 @@ use base 'CGI::Application';
 use pluma::LDAP;
 use pluma::Util;
 
-use POSIX qw( strftime );
-
 use strict;
 use warnings;
 
@@ -56,7 +54,11 @@ sub setup {
 
     # Logging
     if ( $self->{'config'}->{'audit.log'} ) {
-        if ( open( LOG, "+>>$self->{'config'}->{'audit.log'}" ) ) {
+        if (
+            $self->{'util'}->logOpen(
+                log => $self->{'config'}->{'audit.log'}
+            )
+        ) {
             $self->{'audit'} = 1;
         }
     }
@@ -86,11 +88,11 @@ sub setup {
 sub teardown {
     my $self = shift;
 
-    close( LOG ) if $self->{'audit'};
+    $self->{'util'}->logClose() if $self->{'audit'};
 }
 
 sub displaySearch {
-    return shift->_wrapAll( container => 'search' );
+    return shift->{'util'}->wrapAll( container => 'search' );
 }
 
 sub displayCreate {
@@ -102,7 +104,9 @@ sub displayCreate {
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
-    return $self->_wrapAll( container => $self->{'arg'}->{'create'} . 'Add' );
+    return $self->{'util'}->wrapAll(
+        container => $self->{'arg'}->{'create'} . 'Add'
+    );
 }
 
 sub displayGroup {
@@ -128,7 +132,7 @@ sub displayGroup {
         if ( $primary->{'uid'} ) { $primary = { p => $primary } };
 
         foreach ( sort keys %{$primary} ) {
-            $group->{'primary'} .= $self->_wrap(
+            $group->{'primary'} .= $self->{'util'}->wrap(
                 container => 'resultsItem',
                 item      => $primary->{$_}->{'uid'},
                 itemDesc  => $primary->{$_}->{'cn'} || '?',
@@ -137,7 +141,7 @@ sub displayGroup {
         }
     }
     else {
-        $group->{'primary'} = $self->_wrap(
+        $group->{'primary'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'None found'
         );
@@ -145,12 +149,12 @@ sub displayGroup {
 
     # Members
     unless ( $group->{'uniqueMember'} ) {
-        $group->{'members'} = $self->_wrap(
+        $group->{'members'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'None found'
         );
 
-        return $self->_wrapAll( container => 'group', %{$group} );
+        return $self->{'util'}->wrapAll( container => 'group', %{$group} );
     }
 
     $group->{'uniqueMember'} = [ $group->{'uniqueMember'} ]
@@ -167,12 +171,12 @@ sub displayGroup {
     );
 
     unless ( $member ) {
-        $group->{'members'} = $self->_wrap(
+        $group->{'members'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'None found'
         );
 
-        return $self->_wrapAll( container => 'group', %{$group} );
+        return $self->{'util'}->wrapAll( container => 'group', %{$group} );
     }
 
     # Single-member group support
@@ -190,7 +194,7 @@ sub displayGroup {
         if ( /uid=(\w+)\,/ ) {
             my $user = $1;
 
-            $group->{'members'} .= $self->_wrap(
+            $group->{'members'} .= $self->{'util'}->wrap(
                 container => 'resultsItem',
                 item      => $user,
                 itemDesc  => $member->{$_}->{'cn'} || '?',
@@ -200,7 +204,7 @@ sub displayGroup {
     }
 
     # Render
-    return $self->_wrapAll( container => 'group', %{$group} );
+    return $self->{'util'}->wrapAll( container => 'group', %{$group} );
 }
 
 sub displayUser {
@@ -313,7 +317,7 @@ sub displayUser {
     $user->{'cGroups'} = join( ',', sort keys %{$group->{1}} );
 
     # Render
-    return $self->_wrapAll( container => 'user', %{$user} );
+    return $self->{'util'}->wrapAll( container => 'user', %{$user} );
 }
 
 sub modGroup {
@@ -327,7 +331,7 @@ sub modGroup {
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
 
-            $self->_log(
+            $self->{'util'}->log(
                 what => 'g:' . $self->{'arg'}->{'group'},
                 item => $attr,
                 object => 
@@ -393,7 +397,7 @@ sub modUser {
                             $action => { 'host' => $obj }
                         );
 
-                        $self->_log(
+                        $self->{'util'}->log(
                             what => 'u:' . $self->{'arg'}->{'user'},
                             item => 'host',
                             object => $obj,
@@ -410,7 +414,7 @@ sub modUser {
                                        . $self->{'config'}->{'ldap.Base.User'} }
                         );
 
-                        $self->_log(
+                        $self->{'util'}->log(
                             what => 'u:' .  $self->{'arg'}->{'user'},
                             item => 'group',
                             object => $obj,
@@ -430,7 +434,7 @@ sub modUser {
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
 
-            $self->_log(
+            $self->{'util'}->log(
                 what => 'u:' . $self->{'arg'}->{'user'},
                 item => $attr,
                 object => 
@@ -505,7 +509,7 @@ sub create {
                 account
             / ];
 
-            $self->_log(
+            $self->{'util'}->log(
                 what => 'u:' .  $self->{'arg'}->{'user'},
                 action => 'create'
             ) if $self->{'audit'};
@@ -532,7 +536,7 @@ sub create {
                 groupOfUniqueNames
             / ];
 
-            $self->_log(
+            $self->{'util'}->log(
                 what => 'g:' .  $self->{'arg'}->{'group'},
                 action => 'create'
             ) if $self->{'audit'};
@@ -579,7 +583,7 @@ sub delete {
             }
         }
 
-        $self->_log(
+        $self->{'utli'}->log(
             what => 'u:' .  $self->{'arg'}->{'user'},
             action => 'delete'
         ) if $self->{'audit'};
@@ -593,7 +597,7 @@ sub delete {
                   . $self->{'config'}->{'ldap.Base.Group'}
         );
 
-        $self->_log(
+        $self->{'util'}->log(
             what => 'g:' .  $self->{'arg'}->{'group'},
             action => 'delete'
         ) if $self->{'audit'};
@@ -619,7 +623,7 @@ sub password {
         replace => { userPassword => $pwCrypt }
     );
 
-    $self->_log(
+    $self->{'util'}->log(
         what => 'u:' .  $self->{'arg'}->{'user'},
         action => 'password modify'
     ) if $self->{'audit'};
@@ -661,9 +665,9 @@ sub search {
     my $search = { %{$user}, %{$group} };
 
     unless ( keys %{$search} ) {
-        return $self->_wrapAll(
+        return $self->{'util'}->wrapAll(
             container => 'results',
-            results   => $self->_wrap(
+            results   => $self->{'util'}->wrap(
                 container => 'error',
                 error     => 'No matches found'
             )
@@ -671,7 +675,7 @@ sub search {
     }
 
     # Return a list
-    return $self->_wrapAll(
+    return $self->{'util'}->wrapAll(
         container => 'results',
         results    => sub {
             my ( $results );
@@ -688,7 +692,7 @@ sub search {
                     next;
                 }
 
-                $results .= $self->_wrap(
+                $results .= $self->{'util'}->wrap(
                     container => 'resultsItem',
                     item      => $search->{$_}->{'uid'} || $search->{$_}->{'cn'},
                     itemDesc  => $search->{$_}->{'description'}
@@ -731,82 +735,6 @@ sub _getNextNum {
     @n = sort { $b <=> $a } @n;
 
     return ++$n[0];
-}
-
-sub _log {
-    my $self = shift;
-
-    my ( $arg );
-    %{$arg} = @_;
-
-    my $stamp = '[' . strftime( "%e/%b/%Y:%H:%M:%S", localtime() ) . ']';
-
-    if ( $arg->{'item'} && $arg->{'object'} ) {
-        print LOG join( ' ',
-            $ENV{'REMOTE_USER'}, $stamp,
-            $arg->{'what'} . ':',
-            $arg->{'item'}, $arg->{'action'}, $arg->{'object'}
-        ) . "\n";
-    }
-    else {
-        print LOG join( ' ',
-            $ENV{'REMOTE_USER'}, $stamp, $arg->{'what'} . ': ' . $arg->{'action'}
-        ) . "\n";
-    }
-
-    return 1;
-}
-
-sub _wrap {
-    my $self = shift;
-
-    my ( $arg );
-    %{$arg} = @_;
-
-    my $template = $self->load_tmpl(
-        $arg->{'container'} . '.thtml',
-        die_on_bad_params => 0,
-        cache => 1
-    );
-
-    delete $arg->{'container'};
-
-    map {
-        chomp( $arg->{$_} );
-        $template->param( $_ => $arg->{$_} );
-    } keys %{$arg};
-
-    return $template->output();
-}
-
-sub _wrapAll {
-    my $self = shift;
-
-    my ( $arg );
-    %{$arg} = @_;
-
-    my $template = $self->load_tmpl(
-        $arg->{'container'} . '.thtml',
-        die_on_bad_params => 0,
-        cache => 1
-    );
-
-    delete $arg->{'container'};
-
-    map {
-        chomp( $arg->{$_} );
-        $template->param( $_ => $arg->{$_} );
-    } keys %{$arg};
-
-    my $page = $self->load_tmpl(
-        'index.thtml',
-        die_on_bad_params => 0,
-        cache => 1
-    );
-
-    $page->param( container => $template->output() );
-
-    return $page->output();
 }
 
 1;

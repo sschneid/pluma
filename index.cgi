@@ -19,9 +19,7 @@ use strict;
 eval {
     require pluma;
 
-    my $pluma = pluma->new(
-        tmpl_path => 'thtml/'
-    );
+    my $pluma = pluma->new();
 
     $pluma->run();
 };

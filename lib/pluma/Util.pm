@@ -14,10 +14,57 @@ package pluma::Util;
 
 @ISA = qw( pluma );
 
+use POSIX qw( strftime );
+
 use strict;
 use warnings;
 
-sub new { return bless {}, shift; }
+sub new { return( bless {}, shift ); }
+
+sub log {
+    my $self = shift;
+        
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $stamp = '[' . strftime( "%e/%b/%Y:%H:%M:%S", localtime() ) . ']';
+                   
+    if ( $arg->{'item'} && $arg->{'object'} ) {
+        print LOG join( ' ',
+            $ENV{'REMOTE_USER'}, $stamp,
+            $arg->{'what'} . ':',
+            $arg->{'item'}, $arg->{'action'}, $arg->{'object'}
+        ) . "\n";
+    }
+    else {
+        print LOG join( ' ',
+            $ENV{'REMOTE_USER'}, $stamp, $arg->{'what'} . ': ' . $arg->{'action'}
+        ) . "\n";
+    }
+                            
+    return( 1 );
+}
+
+sub logClose {
+    my $self = shift;
+
+    close( LOG );
+
+    return( 1 );
+}
+
+sub logOpen {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    ( $arg->{'log'} ) || return( 0 );
+
+    open( LOG, "+>>$arg->{'log'}" ) || return( 0 );
+
+    return( 1 );
+}
 
 sub pwEncrypt {
     my $self = shift;
@@ -117,6 +164,58 @@ sub untaintCGI {
     } keys %{$taint};
 
     return( $untaint );
+}
+
+sub wrap {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $template = $self->load_tmpl(
+        'thtml/' . $arg->{'container'} . '.thtml',
+        die_on_bad_params => 0,
+        cache => 1
+    );
+
+    delete $arg->{'container'};
+
+    map {
+        chomp( $arg->{$_} );
+        $template->param( $_ => $arg->{$_} );
+    } keys %{$arg};
+
+    return( $template->output() );
+}
+
+sub wrapAll {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $template = $self->load_tmpl(
+        'thtml/' . $arg->{'container'} . '.thtml',
+        die_on_bad_params => 0,
+        cache => 1
+    );
+
+    delete $arg->{'container'};
+
+    map {
+        chomp( $arg->{$_} );
+        $template->param( $_ => $arg->{$_} );
+    } keys %{$arg};
+
+    my $page = $self->load_tmpl(
+        'thtml/' . 'index.thtml',
+        die_on_bad_params => 0,
+        cache => 1
+    );
+
+    $page->param( container => $template->output() );
+
+    return( $page->output() );
 }
 
 1;
