@@ -639,6 +639,8 @@ sub search {
         $self->{'arg'}->{'search'} ||= $arg->{'search'};
     }
 
+    $self->{'arg'}->{'search'} = '' if $self->{'arg'}->{'search'} eq '*';
+
     my $user = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.User'},
         filter =>
