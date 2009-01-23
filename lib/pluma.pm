@@ -82,7 +82,7 @@ sub setup {
         ? $self->start_mode( 'displayUser' )
         : $self->start_mode( 'displayGroup' );
 
-    return $self;
+    return( $self );
 }
 
 sub teardown {
@@ -92,34 +92,34 @@ sub teardown {
 }
 
 sub displaySearch {
-    return shift->{'util'}->wrapAll( container => 'search' );
+    return( shift->{'util'}->wrapAll( container => 'search' ) );
 }
 
 sub displayCreate {
     my $self = shift;
 
-    return $self->displaySearch() unless (
+    return( $self->displaySearch() ) unless (
         ( $self->{'arg'}->{'create'} ) &&
         ( $self->{'arg'}->{'create'} eq 'user' ||
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
-    return $self->{'util'}->wrapAll(
+    return( $self->{'util'}->wrapAll(
         container => $self->{'arg'}->{'create'} . 'Add'
-    );
+    ) );
 }
 
 sub displayGroup {
     my $self = shift;
 
-    return $self->displaySearch() unless $self->{'arg'}->{'group'};
+    return( $self->displaySearch() ) unless $self->{'arg'}->{'group'};
 
     my $group = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.Group'},
         filter => 'cn=' . $self->{'arg'}->{'group'},
         attrs  => [ '*' ]
     )
-    || return $self->search( search => $self->{'arg'}->{'group'} );
+    || return( $self->search( search => $self->{'arg'}->{'group'} ) );
 
     # Primary
     my $primary = $self->{'ldap'}->fetch(
@@ -154,7 +154,9 @@ sub displayGroup {
             error     => 'None found'
         );
 
-        return $self->{'util'}->wrapAll( container => 'group', %{$group} );
+        return( $self->{'util'}->wrapAll(
+            container => 'group', %{$group}
+        ) );
     }
 
     $group->{'uniqueMember'} = [ $group->{'uniqueMember'} ]
@@ -176,7 +178,9 @@ sub displayGroup {
             error     => 'None found'
         );
 
-        return $self->{'util'}->wrapAll( container => 'group', %{$group} );
+        return( $self->{'util'}->wrapAll(
+            container => 'group', %{$group}
+        ) );
     }
 
     # Single-member group support
@@ -187,7 +191,9 @@ sub displayGroup {
             attrs => [ 'uid' ]
         )->{'uid'};
 
-        $member = { "uid=$uid," . $self->{'config'}->{'ldap.Base.User'} => $member };
+        $member = {
+            "uid=$uid," . $self->{'config'}->{'ldap.Base.User'} => $member
+        };
     }
 
     foreach ( sort keys %{$member} ) {
@@ -204,20 +210,20 @@ sub displayGroup {
     }
 
     # Render
-    return $self->{'util'}->wrapAll( container => 'group', %{$group} );
+    return( $self->{'util'}->wrapAll( container => 'group', %{$group} ) );
 }
 
 sub displayUser {
     my $self = shift;
 
-    return $self->displaySearch() unless $self->{'arg'}->{'user'};
+    return( $self->displaySearch() ) unless $self->{'arg'}->{'user'};
 
     my $user = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.User'},
         filter => 'uid=' . $self->{'arg'}->{'user'},
         attrs  => [ '*' ]
     )
-    || return $self->search( search => $self->{'arg'}->{'user'} );
+    || return( $self->search( search => $self->{'arg'}->{'user'} ) );
 
     # Login shells
     unless ( $self->{'config'}->{'shells'} ) {
@@ -317,7 +323,7 @@ sub displayUser {
     $user->{'cGroups'} = join( ',', sort keys %{$group->{1}} );
 
     # Render
-    return $self->{'util'}->wrapAll( container => 'user', %{$user} );
+    return( $self->{'util'}->wrapAll( container => 'user', %{$user} ) );
 }
 
 sub modGroup {
@@ -342,7 +348,7 @@ sub modGroup {
         }
     }
 
-    return $self->displayGroup();
+    return( $self->displayGroup() );
 }
 
 sub modUser {
@@ -445,13 +451,13 @@ sub modUser {
         }
     }
 
-    return $self->displayUser();
+    return( $self->displayUser() );
 }
 
 sub create {
     my $self = shift;
 
-    return $self->displaySearch() unless (
+    return( $self->displaySearch() ) unless (
         ( $self->{'arg'}->{'create'} ) &&
         ( $self->{'arg'}->{'create'} eq 'user' ||
           $self->{'arg'}->{'create'} eq 'group' )
@@ -546,8 +552,8 @@ sub create {
     $self->{'ldap'}->add( $create->{'dn'}, attr => [ %{$create->{'attr'}} ] );
 
     for ( $self->{'arg'}->{'create'} ) {
-        /user/  && return $self->displayUser();
-        /group/ && return $self->displayGroup();
+        /user/  && return( $self->displayUser() );
+        /group/ && return( $self->displayGroup() );
     }
 }
 
@@ -605,7 +611,7 @@ sub delete {
         delete $self->{'arg'}->{'group'};
     }
 
-    return $self->displaySearch();
+    return( $self->displaySearch() );
 }
 
 sub password {
@@ -628,13 +634,13 @@ sub password {
         action => 'password modify'
     ) if $self->{'audit'};
 
-    return $self->displayUser();
+    return( $self->displayUser() );
 }
 
 sub search {
     my $self = shift;
 
-    return $self->displaySearch() unless $self->{'arg'}->{'search'};
+    return( $self->displaySearch() ) unless $self->{'arg'}->{'search'};
 
     unless ( $self->{'arg'}->{'search'} ) {
         my ( $arg );
@@ -665,17 +671,17 @@ sub search {
     my $search = { %{$user}, %{$group} };
 
     unless ( keys %{$search} ) {
-        return $self->{'util'}->wrapAll(
+        return( $self->{'util'}->wrapAll(
             container => 'results',
             results   => $self->{'util'}->wrap(
                 container => 'error',
                 error     => 'No matches found'
             )
-        );
+        ) );
     }
 
     # Return a list
-    return $self->{'util'}->wrapAll(
+    return( $self->{'util'}->wrapAll(
         container => 'results',
         results    => sub {
             my ( $results );
@@ -701,9 +707,9 @@ sub search {
                 )
             }
 
-            return $results;
+            return( $results );
         }
-    );
+    ) );
 }
 
 1;

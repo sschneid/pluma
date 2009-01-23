@@ -96,11 +96,11 @@ sub fetch {
     return( $r );
 }
 
-sub add { return shift->{'ldap'}->add( @_ ); }
+sub add { return( shift->{'ldap'}->add( @_ ) ); }
 
-sub delete { return shift->{'ldap'}->delete( @_ ); }
+sub delete { return( shift->{'ldap'}->delete( @_ ) ); }
 
-sub modify { return shift->{'ldap'}->modify( @_ ); }
+sub modify { return( shift->{'ldap'}->modify( @_ ) ); }
 
 sub getNextNum {
     my $self = shift;
