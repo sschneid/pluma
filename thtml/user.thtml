@@ -104,7 +104,7 @@
             <table>
               <tr>
                 <td>
-                  <form method="post" action="">
+                  <form name="pwChange" method="post" action="">
                     <input type="hidden" name="rm" value="password" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
                     New password: &nbsp;
