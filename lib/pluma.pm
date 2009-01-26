@@ -515,6 +515,11 @@ sub create {
                 account
             / ];
 
+            if ( $self->{'config'}->{'user.objectClass'} ) {
+                push @{$create->{'attr'}->{'objectClass'}},
+                    @{$self->{'config'}->{'user.objectClass'}};
+            }
+
             $self->{'util'}->log(
                 what => 'u:' .  $self->{'arg'}->{'user'},
                 action => 'create'
