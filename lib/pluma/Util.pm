@@ -121,13 +121,13 @@ sub readConfig {
     $arg->{'configFile'} || return( 0 );
 
     if ( -e $arg->{'configFile'} ) {
-        open configFile, $arg->{'configFile'} || return( 0 );
+        open( CONFILE, $arg->{'configFile'} ) || return( 0 );
 
-        while( <configFile> ) {
+        while( <CONFILE> ) {
             $config->{$1} = $2 if /^\$(.+?):.+?"(.+?)"/;
             ( @{$config->{$1}} ) = split / /, $2 if /^\@(.+?):.+?"(.+?)"/;
         }
-        close configFile;
+        close( CONFILE );
     }
     else {
         return( 0 );
