@@ -622,6 +622,8 @@ sub delete {
 sub password {
     my $self = shift;
 
+    return( $self->displayUser() ) unless $self->{'arg'}->{'password'};
+
     my $pwCrypt = $self->{'util'}->pwEncrypt(
         text   => $self->{'arg'}->{'password'},
         digest => $self->{'config'}->{'pw.Encrypt'}
