@@ -84,6 +84,7 @@ sub fetch {
             my $val = [ $entry->get_value( $attr ) ];
             $r->{$entry->dn()}->{$attr} = @{$val} > 1 ? $val : $val->[0];
         }
+        $r->{$entry->dn()}->{'dn'} = $entry->dn();
     }
 
     # Flatten single-key hashes
