@@ -594,7 +594,7 @@ sub delete {
             }
         }
 
-        $self->{'utli'}->log(
+        $self->{'util'}->log(
             what => 'u:' .  $self->{'arg'}->{'user'},
             action => 'delete'
         ) if $self->{'audit'};
