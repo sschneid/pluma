@@ -52,6 +52,28 @@ sub setup {
     )
     || die qq(Error binding as $self->{'config'}->{'auth.BindDN'}\n);
 
+    # Find user base DN(s) if not specified
+    unless ( $self->{'config'}->{'ldap.Base.User'} ) {
+        my ( $dn );
+
+        foreach (
+            keys %{$self->{'ldap'}->fetch(
+                base   => $self->{'config'}->{'ldap.Base'},
+                filter => 'objectClass=person',
+                attrs  => [ 'dn' ]
+            )}
+        ) {
+            $dn->{$1} = 1 if /^uid=.+?,(.*)$/
+        }
+
+        if ( keys %{$dn} > 1 ) {
+            $self->{'config'}->{'ldap.Base.User'} = [ keys %{$dn} ];
+        }
+        else {
+            map { $self->{'config'}->{'ldap.Base.User'} = $_; } keys %{$dn};
+        }
+    }
+
     # Logging
     if ( $self->{'config'}->{'audit.log'} ) {
         if (
@@ -104,9 +126,38 @@ sub displayCreate {
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
-    return( $self->{'util'}->wrapAll(
-        container => $self->{'arg'}->{'create'} . 'Add'
-    ) );
+    if (
+        ( $self->{'arg'}->{'create'} eq 'user' ) &&
+        ( ref $self->{'config'}->{'ldap.Base.User'} )
+    ) {
+        my ( $labels );
+
+        foreach ( @{$self->{'config'}->{'ldap.Base.User'}} ) {
+            my $label = $_;
+            $label = $1 if /(.+?)\,$self->{'config'}->{'ldap.Base'}$/;
+            $label =~ s/$self->{'config'}->{'prefix.Base.User'}//g
+                if $self->{'config'}->{'prefix.Base.User'};
+            $labels->{$_} = $label;
+        }
+
+        return( $self->{'util'}->wrapAll(
+            container => $self->{'arg'}->{'create'} . 'Add',
+            base      => $self->{'util'}->wrap(
+                container => 'selectBase',
+                bases     => $self->{'cgi'}->popup_menu(
+                    -name    => 'base',
+                    -class   => 'dropBox',
+                    -values  => [ sort @{$self->{'config'}->{'ldap.Base.User'}} ],
+                    -labels  => $labels
+                )
+            )
+        ) );
+    }
+    else {
+        return( $self->{'util'}->wrapAll(
+            container => $self->{'arg'}->{'create'} . 'Add'
+        ) );
+    }
 }
 
 sub displayGroup {
@@ -398,8 +449,7 @@ sub modUser {
                 for ( $a ) {
                     /host/ and do {
                         $self->{'ldap'}->modify(
-                            'uid=' . $self->{'arg'}->{'user'} . ','
-                                   . $self->{'config'}->{'ldap.Base.User'},
+                            $self->{'arg'}->{'dn'},
                             $action => { 'host' => $obj }
                         );
 
@@ -415,9 +465,9 @@ sub modUser {
                         $self->{'ldap'}->modify(
                             'cn=' . $obj . ','
                                   . $self->{'config'}->{'ldap.Base.Group'},
-                            $action => { 'uniqueMember' =>
-                                'uid=' . $self->{'arg'}->{'user'} . ','
-                                       . $self->{'config'}->{'ldap.Base.User'} }
+                            $action => {
+                                'uniqueMember' => $self->{'arg'}->{'dn'}
+                            }
                         );
 
                         $self->{'util'}->log(
@@ -435,8 +485,7 @@ sub modUser {
     foreach my $attr ( qw/ cn gidNumber homeDirectory loginShell mail uidNumber / ) {
         unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
             $self->{'ldap'}->modify(
-                'uid=' . $self->{'arg'}->{'user'} . ','
-                       . $self->{'config'}->{'ldap.Base.User'},
+                $self->{'arg'}->{'dn'},
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
 
@@ -469,8 +518,11 @@ sub create {
         /user/ && do {
             $self->{'arg'}->{'user'} = $self->{'arg'}->{'uid'};
 
-            $create->{'dn'} = 'uid=' . $self->{'arg'}->{'uid'} . ','
-                . $self->{'config'}->{'ldap.Base.User'};
+            $create->{'dn'} = 'uid=' . $self->{'arg'}->{'uid'} . ',';
+
+            $create->{'dn'} .= $self->{'arg'}->{'base'}
+                ? $self->{'arg'}->{'base'}
+                : $self->{'config'}->{'ldap.Base.User'};
 
             $create->{'attr'}->{'cn'}    = $self->{'arg'}->{'cn'};
             $create->{'attr'}->{'gecos'} = $self->{'arg'}->{'cn'};
@@ -565,14 +617,12 @@ sub create {
 sub delete {
     my $self = shift;
 
+    return( $self->displayUser() ) unless $self->{'arg'}->{'dn'};
+
     if ( $self->{'arg'}->{'user'} ) {
-        $self->{'ldap'}->delete(
-            'uid=' . $self->{'arg'}->{'user'} . ','
-                   . $self->{'config'}->{'ldap.Base.User'}
-        );
+        $self->{'ldap'}->delete( $self->{'arg'}->{'dn'} );
     
-        my $filter = 'uniqueMember=uid=' . $self->{'arg'}->{'user'}
-            . ',' . $self->{'config'}->{'ldap.Base.User'};
+        my $filter = 'uniqueMember=' . $self->{'arg'}->{'dn'};
 
         my $group = $self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.Base.Group'},
@@ -587,9 +637,7 @@ sub delete {
                 $self->{'ldap'}->modify(
                     'cn=' . $group->{$g}->{'cn'} . ','
                           . $self->{'config'}->{'ldap.Base.Group'},
-                    delete => { 'uniqueMember' =>
-                        'uid=' . $self->{'arg'}->{'user'} . ','
-                               . $self->{'config'}->{'ldap.Base.User'} }
+                    delete => { 'uniqueMember' => $self->{'arg'}->{'dn'} }
                 );
             }
         }
@@ -622,7 +670,9 @@ sub delete {
 sub password {
     my $self = shift;
 
-    return( $self->displayUser() ) unless $self->{'arg'}->{'password'};
+    return( $self->displayUser() ) unless (
+        $self->{'arg'}->{'dn'} && $self->{'arg'}->{'password'}
+    );
 
     my $pwCrypt = $self->{'util'}->pwEncrypt(
         text   => $self->{'arg'}->{'password'},
@@ -631,8 +681,7 @@ sub password {
     || die qq(Error attempting to encrypt password\n);
 
     $self->{'ldap'}->modify(
-        'uid=' . $self->{'arg'}->{'user'} . ','
-               . $self->{'config'}->{'ldap.Base.User'},
+        $self->{'arg'}->{'dn'},
         replace => { userPassword => $pwCrypt }
     );
 

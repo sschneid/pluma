@@ -133,12 +133,11 @@ sub readConfig {
         return( 0 );
     }
 
-
     map {
         if ( ref $config->{$_} ) {
             foreach ( @{$config->{$_}} ) {
                 $_ =~ s/\$([\w.]+)/$config->{$1}/g;
-            }   
+            }
         }
         else {
             $config->{$_} =~ s/\$([\w.]+)/$config->{$1}/g;

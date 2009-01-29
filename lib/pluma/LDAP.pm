@@ -65,27 +65,32 @@ sub fetch {
     my ( $arg );
     %{$arg} = @_;
 
+    $arg->{'base'} = [ $arg->{'base'} ] unless ref $arg->{'base'};
+
     my ( $r );
 
-    my $result = $self->{'ldap'}->search(
-        base   => $arg->{'base'},
-        filter => $arg->{'filter'},
-        attrs  => $arg->{'attrs'},
+    foreach my $base ( @{$arg->{'base'}} ) {
+        my $result = $self->{'ldap'}->search(
+            base   => $base,
+            filter => $arg->{'filter'},
+            attrs  => $arg->{'attrs'},
 
-        sizelimit => $self->{'config'}->{'fetch.Limit.Size'},
-        timelimit => $self->{'config'}->{'fetch.Limit.Time'}
-    );
+            sizelimit => $self->{'config'}->{'fetch.Limit.Size'},
+            timelimit => $self->{'config'}->{'fetch.Limit.Time'}
+        );
 
-    # Error if single entry not found
-    return( 0 ) unless $result->entries();
+        next unless $result->entries();
 
-    foreach my $entry ( $result->all_entries() ) {
-        foreach my $attr ( $entry->attributes ) {
-            my $val = [ $entry->get_value( $attr ) ];
-            $r->{$entry->dn()}->{$attr} = @{$val} > 1 ? $val : $val->[0];
+        foreach my $entry ( $result->all_entries() ) {
+            foreach my $attr ( $entry->attributes ) {
+                my $val = [ $entry->get_value( $attr ) ];
+                $r->{$entry->dn()}->{$attr} = @{$val} > 1 ? $val : $val->[0];
+            }
+            $r->{$entry->dn()}->{'dn'} = $entry->dn();
         }
-        $r->{$entry->dn()}->{'dn'} = $entry->dn();
     }
+
+    return( 0 ) unless $r;
 
     # Flatten single-key hashes
     if ( keys %{$r} == 1 ) {

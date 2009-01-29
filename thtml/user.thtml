@@ -9,6 +9,7 @@
             <input type="hidden" name="rm" value="modUser" />
 
             <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
+            <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
 
             <input type="hidden" name="cnWas" value="<!-- tmpl_var name="cn" -->" />
             <input type="hidden" name="loginShellWas" value="<!-- tmpl_var name="loginShell" -->" />
@@ -107,6 +108,7 @@
                   <form name="pwChange" method="post" action="">
                     <input type="hidden" name="rm" value="password" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
+                    <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
                     New password: &nbsp;
                     <input type="password" name="password" /> &nbsp;
                     Confirm: &nbsp;
@@ -118,6 +120,7 @@
                   <form method="post" action="">
                     <input type="hidden" name="rm" value="delete" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
+                    <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
                     <input type="submit" class="button" name="" value=" Delete this user " onclick="return delUserConfirm()" />
                   </form>
                 </td>

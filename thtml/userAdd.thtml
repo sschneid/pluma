@@ -12,6 +12,7 @@
                     <div class="valnochg"><input name="uid" /></div>
                     <div class="attr">Full name:</div>
                     <div class="valnochg"><input name="cn" /></div>
+                    <!-- tmpl_var name="base" -->
                 </div>
 
                 <br />
