@@ -1,5 +1,16 @@
 Revision history of pluma
 
+1.7
+* Thu Jan 29 2008 Scott Schneider <sschneid@gmail.com>
+- Support for multiple user base DNs
+- Support for user-defined objectClass inclusion of new users
+- Ability to list all directory objects (search criteria of '*')
+- Moved private functions into separate modules (pluma::LDAP, pluma::Util)
+- pluma::Util::readConfig support for variable substitution within arrays
+- Bug fixes:
+    - Password sanity validation (pluma.js:validatePwd)
+    - Audit log is created if it doesn't exist
+
 1.6
 * Thu Jan 22 2008 Scott Schneider <sschneid@gmail.com>
 - Configurable homeDirectory prefix and email address format
