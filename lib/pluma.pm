@@ -170,7 +170,9 @@ sub displayGroup {
 
     my $group = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.Group'},
-        filter => 'cn=' . $self->{'arg'}->{'group'},
+        filter =>
+            '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+             . '(cn=' . $self->{'arg'}->{'group'} . ') )',
         attrs  => [ '*' ]
     )
     || return( $self->search( search => $self->{'arg'}->{'group'} ) );
