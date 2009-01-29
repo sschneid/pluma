@@ -35,6 +35,13 @@ pluma reads in most of it's configuration directives through a flat text configr
         $ldap.Base.Host: "ou=Hosts,$ldap.Base"
         $ldap.Base.Group: "ou=Groups,$ldap.Base"
 
+    - If users exist in multiple bases, this is configurable as well.  For display purposes, a prefix can be set to be excluded from selection lists.
+
+    - Example:
+
+        @ldap.Base.User: "ou=People,dc=hq,$ldap.Base ou=People,dc=field,$ldap.Base"
+        $prefix.Base.User: "ou=People,dc="
+
 * LDAP bind account
 
     - An LDAP account with sufficient read/write access to the user, host, and group OUs must be set-up and specified.
