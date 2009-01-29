@@ -74,6 +74,9 @@ sub setup {
         }
     }
 
+    # Define a default group objectClass if not specified
+    $self->{'config'}->{'group.objectClass'} ||= 'posixGroup';
+
     # Logging
     if ( $self->{'config'}->{'audit.log'} ) {
         if (
@@ -324,7 +327,7 @@ sub displayUser {
     # Groups
     my $group = $self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.Base.Group'},
-            filter => 'objectClass=posixGroup',
+            filter => 'objectClass=' . $self->{'config'}->{'group.objectClass'},
             attrs  => [ 'cn', 'gidNumber', 'uniqueMember' ]
     );
 
@@ -717,7 +720,7 @@ sub search {
     ) || {};
     my $group = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.Group'},
-        filter => 'cn=' . $self->{'arg'}->{'search'} . '*',
+        filter => 'objectClass=' . $self->{'config'}->{'group.objectClass'},
         attrs  => [ '*' ]
     ) || {};
 
