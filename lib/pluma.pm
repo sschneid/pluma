@@ -75,7 +75,7 @@ sub setup {
     }
 
     # Define a default group objectClass if not specified
-    $self->{'config'}->{'group.objectClass'} ||= 'posixGroup';
+    $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';
 
     # Logging
     if ( $self->{'config'}->{'audit.log'} ) {
@@ -720,7 +720,9 @@ sub search {
     ) || {};
     my $group = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.Group'},
-        filter => 'objectClass=' . $self->{'config'}->{'group.objectClass'},
+        filter =>
+            '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+             . '(cn=' . $self->{'arg'}->{'search'} . '*) )',
         attrs  => [ '*' ]
     ) || {};
 
