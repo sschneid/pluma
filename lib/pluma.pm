@@ -563,6 +563,10 @@ sub create {
             $create->{'attr'}->{'gidNumber'}
                 = $self->{'config'}->{'default.GID'};
 
+            $self->{'config'}->{'default.Shell'} ||= '/bin/false';
+            $create->{'attr'}->{'loginShell'}
+                = $self->{'config'}->{'default.Shell'};
+
             $create->{'attr'}->{'objectClass'} = [ qw/
                 top
                 person
