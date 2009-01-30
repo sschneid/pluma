@@ -393,6 +393,8 @@ sub modGroup {
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
 
+            $self->{'arg'}->{$attr . 'Was'} ||= 'null';
+
             $self->{'util'}->log(
                 what => 'g:' . $self->{'arg'}->{'group'},
                 item => $attr,
@@ -493,6 +495,8 @@ sub modUser {
                 $self->{'arg'}->{'dn'},
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
+
+            $self->{'arg'}->{$attr . 'Was'} ||= 'null';
 
             $self->{'util'}->log(
                 what => 'u:' . $self->{'arg'}->{'user'},
