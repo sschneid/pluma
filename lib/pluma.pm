@@ -63,7 +63,7 @@ sub setup {
                 attrs  => [ 'dn' ]
             )}
         ) {
-            $dn->{$1} = 1 if /^uid=.+?,(.*)$/
+            $dn->{$1} = 1 if /^uid=.+?,\s*(.*)$/
         }
 
         if ( keys %{$dn} > 1 ) {
@@ -135,12 +135,16 @@ sub displayCreate {
     ) {
         my ( $labels );
 
-        foreach ( @{$self->{'config'}->{'ldap.Base.User'}} ) {
-            my $label = $_;
-            $label = $1 if /(.+?)\,$self->{'config'}->{'ldap.Base'}$/;
-            $label =~ s/$self->{'config'}->{'prefix.Base.User'}//g
-                if $self->{'config'}->{'prefix.Base.User'};
-            $labels->{$_} = $label;
+        my $labeldesc = $self->{'ldap'}->fetch(
+            base   => $self->{'config'}->{'ldap.Base'},
+            filter => 'objectClass=organizationalUnit',
+            attrs  => [ 'description' ]
+        );
+
+        foreach my $dn ( @{$self->{'config'}->{'ldap.Base.User'}} ) {
+            my $label = $labeldesc->{$dn}->{'description'} || $dn;
+            $label = $1 if $label =~ /(.+?)\,$self->{'config'}->{'ldap.Base'}$/;
+            $labels->{$dn} = $label;
         }
 
         return( $self->{'util'}->wrapAll(
