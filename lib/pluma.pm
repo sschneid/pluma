@@ -765,9 +765,9 @@ sub search {
                 my ( $type );
 
                 if (
-                    $search->{$_}->{'uidNumber'} || $search->{$_}->{'gidNumber'}
+                    $search->{$_}->{'uid'} || $search->{$_}->{'uniqueMember'}
                 ) {
-                    $type = $search->{$_}->{'uidNumber'} ? 'user' : 'group';
+                    $type = $search->{$_}->{'uid'} ? 'user' : 'group';
                 }
                 else {
                     next;
