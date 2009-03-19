@@ -538,7 +538,6 @@ sub create {
                 : $self->{'config'}->{'ldap.Base.User'};
 
             $create->{'attr'}->{'cn'}    = $self->{'arg'}->{'cn'};
-            $create->{'attr'}->{'gecos'} = $self->{'arg'}->{'cn'};
 
             $create->{'attr'}->{'sn'} = $create->{'attr'}->{'cn'};
             $create->{'attr'}->{'sn'} =~ s/^.+?(\w+)$/$1/;
@@ -557,36 +556,43 @@ sub create {
                 }
             }
 
-            $self->{'config'}->{'prefix.Home'} ||= '/home/';
-            $self->{'config'}->{'prefix.Home'} .= '/' unless /\/$/;
-            $create->{'attr'}->{'homeDirectory'} =
-                $self->{'config'}->{'prefix.Home'} . $self->{'arg'}->{'uid'};
-
-            $create->{'attr'}->{'uidNumber'} = $self->{'ldap'}->getNextNum(
-                base => $self->{'config'}->{'ldap.Base.User'},
-                unit => 'uid'
-            );
-
-            $self->{'config'}->{'default.GID'} ||= '100';
-            $create->{'attr'}->{'gidNumber'}
-                = $self->{'config'}->{'default.GID'};
-
-            $self->{'config'}->{'default.Shell'} ||= '/bin/false';
-            $create->{'attr'}->{'loginShell'}
-                = $self->{'config'}->{'default.Shell'};
-
             $create->{'attr'}->{'objectClass'} = [ qw/
                 top
                 person
                 organizationalPerson
                 inetOrgPerson
-                posixAccount
-                account
             / ];
 
             if ( $self->{'config'}->{'user.objectClass'} ) {
                 push @{$create->{'attr'}->{'objectClass'}},
                     @{$self->{'config'}->{'user.objectClass'}};
+            }
+
+
+            if ( $self->{'config'}->{'user.POSIX'} ) {
+                $create->{'attr'}->{'gecos'} = $self->{'arg'}->{'cn'};
+                $self->{'config'}->{'prefix.Home'} ||= '/home/';
+                $self->{'config'}->{'prefix.Home'} .= '/' unless /\/$/;
+                $create->{'attr'}->{'homeDirectory'} =
+                    $self->{'config'}->{'prefix.Home'} . $self->{'arg'}->{'uid'};
+
+                $create->{'attr'}->{'uidNumber'} = $self->{'ldap'}->getNextNum(
+                    base => $self->{'config'}->{'ldap.Base.User'},
+                    unit => 'uid'
+                );
+
+                $self->{'config'}->{'default.GID'} ||= '100';
+                $create->{'attr'}->{'gidNumber'}
+                    = $self->{'config'}->{'default.GID'};
+
+                $self->{'config'}->{'default.Shell'} ||= '/bin/false';
+                $create->{'attr'}->{'loginShell'}
+                    = $self->{'config'}->{'default.Shell'};
+
+                push @{$create->{'attr'}->{'objectClass'}}, [ qw/
+                    posixAccount
+                    account
+                / ];
             }
 
             $self->{'util'}->log(
