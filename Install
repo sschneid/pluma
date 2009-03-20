@@ -35,7 +35,7 @@ pluma reads in most of it's configuration directives through a flat text configr
         $ldap.Base.Host: "ou=Hosts,$ldap.Base"
         $ldap.Base.Group: "ou=Groups,$ldap.Base"
 
-    - If users exist in multiple bases, this is configurable as well.  For display purposes, a prefix can be set to be excluded from selection lists.
+    - If users exist in multiple bases, this is configurable as well.  For display purposes, a prefix can be set to be excluded from selection lists.  If ldap.Base.User is left blank, pluma will search ldap.Base for and use all OUs containing user objects.
 
     - Example:
 
@@ -77,14 +77,17 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * New user defaults
 
-    - GID ($default.GID), mail format ($mail.Format), homeDirectory prefix ($prefix.Home), and OU inclusion (@user.objectClass) can be set.  Defaults are used if values are not set.
+    - GID ($default.GID), loginShell ($default.Shell), mail format ($mail.Format), homeDirectory prefix ($prefix.Home), and OU inclusion (@user.objectClass) can be set.  Defaults are used if values are not set.
+    - If not creating POSIX users set user.POSIX to "0".  Note that only uid, cn, givenName, sn, mail, and userPassword are allowed for non-POSIX users.
     - Valid variables in $mail.Format are '%givenName', '%sn', and '%uid'.
 
     - Example:
 
         $default.GID: "100"
+        $default.Shell: "/bin/false"
         $prefix.Home: "/home"
         $mail.Format: "%uid@company.com"
+        $user.POSIX: "1"
         @user.ObjectClass: "companyDotComUser"
 
 * Internal LDAP limits
