@@ -152,6 +152,14 @@ sub displayCreate {
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $error = '<br />' . $self->{'util'}->wrap(
+        container => 'error',
+        error     => $arg->{'error'}
+    ) if $arg->{'error'};
+
     if (
         ( $self->{'arg'}->{'create'} eq 'user' ) &&
         ( ref $self->{'config'}->{'ldap.Base.User'} )
@@ -170,14 +178,16 @@ sub displayCreate {
                     -values  => [ sort {
                                     $labels->{$a} cmp $labels->{$b}
                                 } keys %{$labels} ],
-                    -labels  => $labels
+                    -labels  => $labels,
                 )
-            )
+            ),
+            error     => $error
         ) );
     }
     else {
         return( $self->{'util'}->wrapAll(
-            container => $self->{'arg'}->{'create'} . 'Add'
+            container => $self->{'arg'}->{'create'} . 'Add',
+            error     => $error
         ) );
     }
 }
@@ -539,6 +549,20 @@ sub create {
         ( $self->{'arg'}->{'create'} eq 'user' ||
           $self->{'arg'}->{'create'} eq 'group' )
     );
+
+    # Check for existing UID
+    if ( $self->{'ldap'}->fetch(
+        base   => $self->{'config'}->{'ldap.Base.User'},
+        filter => 'uid=' . $self->{'arg'}->{'uid'},
+        attrs  => [ 'dn' ]
+    ) ) {
+        return( $self->displayCreate(
+            error =>
+                qq(<a href="?user=$self->{'arg'}->{'uid'}">)
+              . qq(User '$self->{'arg'}->{'uid'}' already exists!)
+              . qq(</a>)
+        ) )
+    }
 
     my ( $create );
 
