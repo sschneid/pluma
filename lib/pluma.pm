@@ -155,7 +155,7 @@ sub displayCreate {
     my ( $arg );
     %{$arg} = @_;
 
-    my $error = '<br />' . $self->{'util'}->wrap(
+    my $error = $self->{'util'}->wrap(
         container => 'error',
         error     => $arg->{'error'}
     ) if $arg->{'error'};
