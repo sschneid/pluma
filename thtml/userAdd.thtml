@@ -4,8 +4,8 @@
             <div id="content">
 
             <form method="post" action="">
-              <input type="hidden" name="rm" value="create" />
-              <input type="hidden" name="create" value="user" />
+                <input type="hidden" name="rm" value="create" />
+                <input type="hidden" name="create" value="user" />
 
                 <div class="objectItem">
                     <div class="attr">Username (login):</div>
@@ -15,11 +15,10 @@
                     <!-- tmpl_var name="base" -->
                 </div>
 
-                <br />
+                <!-- tmpl_var name="error" --><br />
 
                 <input type="submit" class="button" name="" value=" Create " />
            </form>
-
            </div>
 
 
