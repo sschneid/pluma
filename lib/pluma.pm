@@ -208,28 +208,36 @@ sub displayGroup {
     || return( $self->search( search => $self->{'arg'}->{'group'} ) );
 
     # Primary
-    my $primary = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.User'},
-        filter => 'gidNumber=' . $group->{'gidNumber'},
-        attrs  => [ 'uid', 'cn' ]
-    );
+    if ( $self->{'config'}->{'user.POSIX'} ) {
+        my $primary = $self->{'ldap'}->fetch(
+            base   => $self->{'config'}->{'ldap.Base.User'},
+            filter => 'gidNumber=' . $group->{'gidNumber'},
+            attrs  => [ 'uid', 'cn' ]
+        );
 
-    if ( $primary ) {
-        if ( $primary->{'uid'} ) { $primary = { p => $primary } };
+        if ( $primary ) {
+            if ( $primary->{'uid'} ) { $primary = { p => $primary } };
 
-        foreach ( sort keys %{$primary} ) {
-            $group->{'primary'} .= $self->{'util'}->wrap(
-                container => 'resultsItem',
-                item      => $primary->{$_}->{'uid'},
-                itemDesc  => $primary->{$_}->{'cn'} || '?',
-                itemType  => 'user'
+            foreach ( sort keys %{$primary} ) {
+                $group->{'primary'} .= $self->{'util'}->wrap(
+                    container => 'resultsItem',
+                    item      => $primary->{$_}->{'uid'},
+                    itemDesc  => $primary->{$_}->{'cn'} || '?',
+                    itemType  => 'user'
+                );
+            }
+        }
+        else {
+            $group->{'primary'} = $self->{'util'}->wrap(
+                container => 'error',
+                error     => 'None found'
             );
         }
     }
     else {
         $group->{'primary'} = $self->{'util'}->wrap(
             container => 'error',
-            error     => 'None found'
+            error     => 'POSIX user support is disabled'
         );
     }
 
@@ -372,7 +380,8 @@ sub displayUser {
         my $uid = $user->{'uid'};
 
         # Associate labels (CNs) with gidNumbers
-        $labels{$group->{$g}->{'gidNumber'}} = $group->{$g}->{'cn'};
+        $labels{$group->{$g}->{'gidNumber'}} = $group->{$g}->{'cn'}
+            if $group->{$g}->{'gidNumber'};
 
         if ( $group->{$g}->{'uniqueMember'} ) {
             $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
@@ -520,6 +529,8 @@ sub modUser {
     }
 
     foreach my $attr ( qw/ cn gidNumber homeDirectory loginShell mail uidNumber / ) {
+        next unless $self->{'arg'}->{$attr};
+
         unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
             $self->{'ldap'}->modify(
                 $self->{'arg'}->{'dn'},
