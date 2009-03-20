@@ -154,7 +154,9 @@ sub displayCreate {
                 bases     => $self->{'cgi'}->popup_menu(
                     -name    => 'base',
                     -class   => 'dropBox',
-                    -values  => [ sort @{$self->{'config'}->{'ldap.Base.User'}} ],
+                    -values  => [ sort {
+                                    $labels->{$a} cmp $labels->{$b}
+                                } keys %{$labels} ],
                     -labels  => $labels
                 )
             )
