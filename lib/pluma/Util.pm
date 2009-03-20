@@ -137,10 +137,12 @@ sub readConfig {
         if ( ref $config->{$_} ) {
             foreach ( @{$config->{$_}} ) {
                 $_ =~ s/\$([\w.]+)/$config->{$1}/g;
+                $_ =~ s/\\s/ /g;
             }
         }
         else {
             $config->{$_} =~ s/\$([\w.]+)/$config->{$1}/g;
+            $config->{$_} =~ s/\\s/ /g;
         }
     } keys %{$config};
 
@@ -212,7 +214,7 @@ sub wrapAll {
     delete $arg->{'container'};
 
     map {
-        chomp( $arg->{$_} );
+        chomp( $arg->{$_} ) if $arg->{$_};
         $template->param( $_ => $arg->{$_} );
     } keys %{$arg};
 
