@@ -74,7 +74,8 @@ sub setup {
         }
     }
 
-    # Define a default group objectClass if not specified
+    # User defaults if not specified
+    $self->{'config'}->{'user.uniqueID'}     ||= 'uid';
     $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';
 
     # Logging
@@ -550,16 +551,19 @@ sub create {
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
-    # Check for existing UID
+    # Check for existing uniqueID
     if ( $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.User'},
-        filter => 'uid=' . $self->{'arg'}->{'uid'},
+        filter => $self->{'config'}->{'user.uniqueID'}  . '='
+                . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}},
         attrs  => [ 'dn' ]
     ) ) {
         return( $self->displayCreate(
             error =>
                 qq(<a href="?user=$self->{'arg'}->{'uid'}">)
-              . qq(User '$self->{'arg'}->{'uid'}' already exists!)
+              . qq(User ')
+              . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}}
+              . qq(' already exists!)
               . qq(</a>)
         ) )
     }
