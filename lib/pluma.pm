@@ -551,27 +551,27 @@ sub create {
           $self->{'arg'}->{'create'} eq 'group' )
     );
 
-    # Check for existing uniqueID
-    if ( $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.User'},
-        filter => $self->{'config'}->{'user.uniqueID'}  . '='
-                . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}},
-        attrs  => [ 'dn' ]
-    ) ) {
-        return( $self->displayCreate(
-            error =>
-                qq(<a href="?user=$self->{'arg'}->{'uid'}">)
-              . qq(User ')
-              . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}}
-              . qq(' already exists!)
-              . qq(</a>)
-        ) )
-    }
-
     my ( $create );
 
     for ( $self->{'arg'}->{'create'} ) {
         /user/ && do {
+            # Check for existing uniqueID
+            if ( $self->{'ldap'}->fetch(
+                base   => $self->{'config'}->{'ldap.Base.User'},
+                filter => $self->{'config'}->{'user.uniqueID'}  . '='
+                        . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}},
+                attrs  => [ 'dn' ]
+            ) ) {
+                return( $self->displayCreate(
+                    error =>
+                        qq(<a href="?user=$self->{'arg'}->{'uid'}">)
+                      . qq(User ')
+                      . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}}
+                      . qq(' already exists!)
+                      . qq(</a>)
+                ) )
+            }
+
             $self->{'arg'}->{'user'} = $self->{'arg'}->{'uid'};
 
             $create->{'dn'} = 'uid=' . $self->{'arg'}->{'uid'} . ',';
