@@ -108,6 +108,29 @@ sub delete { return( shift->{'ldap'}->delete( @_ ) ); }
 
 sub modify { return( shift->{'ldap'}->modify( @_ ) ); }
 
+sub getLabels {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    my ( $l );
+
+    my $desc = $self->fetch(
+        base   => $arg->{'base'},
+        filter => 'objectClass=organizationalUnit',
+        attrs  => [ 'description' ]
+    );
+
+    foreach my $dn ( @{$arg->{'base'}} ) {
+        my $label = $desc->{$dn}->{'description'} || $dn;
+        $label = $1 if $label =~ /(.+?)\,$arg->{'base'}$/;
+        $l->{$dn} = $label;
+    }
+
+    return( $l );
+}
+
 sub getNextNum {
     my $self = shift;
 

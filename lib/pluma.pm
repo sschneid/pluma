@@ -120,19 +120,9 @@ sub displaySearch {
     my $self = shift;
 
     if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
-        my ( $labels );
-
-        my $labeldesc = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base'},
-            filter => 'objectClass=organizationalUnit',
-            attrs  => [ 'description' ]
+        my $labels = $self->{'ldap'}->getLabels(
+            base => $self->{'config'}->{'ldap.Base.User'}
         );
-
-        foreach my $dn ( @{$self->{'config'}->{'ldap.Base.User'}} ) {
-            my $label = $labeldesc->{$dn}->{'description'} || $dn;
-            $label = $1 if $label =~ /(.+?)\,$self->{'config'}->{'ldap.Base'}$/;
-            $labels->{$dn} = $label;
-        }
 
         $labels->{''} = 'All';
 
@@ -166,19 +156,9 @@ sub displayCreate {
         ( $self->{'arg'}->{'create'} eq 'user' ) &&
         ( ref $self->{'config'}->{'ldap.Base.User'} )
     ) {
-        my ( $labels );
-
-        my $labeldesc = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base'},
-            filter => 'objectClass=organizationalUnit',
-            attrs  => [ 'description' ]
+        my $labels = $self->{'ldap'}->getLabels(
+            base => $self->{'config'}->{'ldap.Base.User'}
         );
-
-        foreach my $dn ( @{$self->{'config'}->{'ldap.Base.User'}} ) {
-            my $label = $labeldesc->{$dn}->{'description'} || $dn;
-            $label = $1 if $label =~ /(.+?)\,$self->{'config'}->{'ldap.Base'}$/;
-            $labels->{$dn} = $label;
-        }
 
         return( $self->{'util'}->wrapAll(
             container => $self->{'arg'}->{'create'} . 'Add',
