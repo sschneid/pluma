@@ -117,7 +117,40 @@ sub teardown {
 }
 
 sub displaySearch {
-    return( shift->{'util'}->wrapAll( container => 'search' ) );
+    my $self = shift;
+
+    if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+        my ( $labels );
+
+        my $labeldesc = $self->{'ldap'}->fetch(
+            base   => $self->{'config'}->{'ldap.Base'},
+            filter => 'objectClass=organizationalUnit',
+            attrs  => [ 'description' ]
+        );
+
+        foreach my $dn ( @{$self->{'config'}->{'ldap.Base.User'}} ) {
+            my $label = $labeldesc->{$dn}->{'description'} || $dn;
+            $label = $1 if $label =~ /(.+?)\,$self->{'config'}->{'ldap.Base'}$/;
+            $labels->{$dn} = $label;
+        }
+
+        $labels->{''} = 'All';
+
+        return( $self->{'util'}->wrapAll(
+            container => 'search',
+             base => $self->{'cgi'}->popup_menu(
+                    -name    => 'base',
+                    -class   => 'dropBox',
+                    -values  => [ sort {
+                                    $labels->{$a} cmp $labels->{$b}
+                                } keys %{$labels} ],
+                    -labels  => $labels
+                )
+        ) );
+    }
+    else {
+        return( $self->{'util'}->wrapAll( container => 'search' ) );
+    }
 }
 
 sub displayCreate {
@@ -732,8 +765,16 @@ sub search {
 
     $self->{'arg'}->{'search'} = '' if $self->{'arg'}->{'search'} eq '*';
 
+    my ( $base );
+    if ( !$self->{'arg'}->{'base'} || $self->{'arg'}->{'base'} eq '' ) {
+        $base = undef;
+    }
+    else {
+        $base = $self->{'arg'}->{'base'};
+    }
+
     my $user = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.User'},
+        base   => $base || $self->{'config'}->{'ldap.Base.User'},
         filter =>
             '(| (uid=' . $self->{'arg'}->{'search'} . '*)'
              . '(givenName=' . $self->{'arg'}->{'search'} . '*)'
@@ -741,7 +782,7 @@ sub search {
         attrs  => [ '*' ]
     ) || {};
     my $group = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.Group'},
+        base   => $base || $self->{'config'}->{'ldap.Base.Group'},
         filter =>
             '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
              . '(cn=' . $self->{'arg'}->{'search'} . '*) )',
