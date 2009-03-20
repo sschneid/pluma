@@ -653,7 +653,7 @@ sub create {
             $create->{'attr'}->{'cn'}          = $self->{'arg'}->{'cn'};
             $create->{'attr'}->{'description'} = $self->{'arg'}->{'description'};
 
-            $create->{'attr'}->{'gidNumber'} = $self->_getNextNum(
+            $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
                 base => $self->{'config'}->{'ldap.Base.Group'},
                 unit => 'gid'
             );
