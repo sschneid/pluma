@@ -10,7 +10,7 @@
                     <input type="submit" class="button" name="" value=" Search " />
                 </form>
 
-                <div style="padding-top:10px; padding-bottom:10px;"><!-- tmpl_var name="error" --></div>
+                <div style="padding-top:8px; padding-bottom:8px;"><!-- tmpl_var name="error" --></div>
 
                 Search scope is first name, last name, username, or group name.&nbsp; If you wish to broaden your search criteria, try shortening your input down to the first three or four letters of your search term.&nbsp; Searching for '*' will return a list of all discovered users and groups in the directory.
            </div>
