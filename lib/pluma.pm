@@ -120,6 +120,14 @@ sub teardown {
 sub displaySearch {
     my $self = shift;
 
+    my ( $arg );
+    %{$arg} = @_;
+
+    my $error = $self->{'util'}->wrap(
+        container => 'error',
+        error     => $arg->{'error'}
+    ) if $arg->{'error'};
+
     if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
         my $labels = $self->{'ldap'}->getLabels(
             base => $self->{'config'}->{'ldap.Base.User'}
@@ -129,18 +137,22 @@ sub displaySearch {
 
         return( $self->{'util'}->wrapAll(
             container => 'search',
-             base => $self->{'cgi'}->popup_menu(
-                    -name    => 'base',
-                    -class   => 'dropBox',
-                    -values  => [ sort {
-                                    $labels->{$a} cmp $labels->{$b}
-                                } keys %{$labels} ],
-                    -labels  => $labels
-                )
+            base => $self->{'cgi'}->popup_menu(
+                -name    => 'base',
+                -class   => 'dropBox',
+                -values  => [ sort {
+                                $labels->{$a} cmp $labels->{$b}
+                            } keys %{$labels} ],
+                -labels  => $labels
+            ),
+            error     => $error
         ) );
     }
     else {
-        return( $self->{'util'}->wrapAll( container => 'search' ) );
+        return( $self->{'util'}->wrapAll(
+            container => 'search',
+            error => $error
+        ) );
     }
 }
 
@@ -566,6 +578,11 @@ sub create {
 
     for ( $self->{'arg'}->{'create'} ) {
         /user/ && do {
+            return( $self->displayCreate(
+                error => qq(Pleaes enter a username and name.)
+            ) )
+                unless ( $self->{'arg'}->{'uid'} && $self->{'arg'}->{'cn'} );
+ 
             # Check for existing uniqueID
             if ( $self->{'ldap'}->fetch(
                 base   => $self->{'config'}->{'ldap.Base.User'},
@@ -814,12 +831,8 @@ sub search {
     my $search = { %{$user}, %{$group} };
 
     unless ( keys %{$search} ) {
-        return( $self->{'util'}->wrapAll(
-            container => 'results',
-            results   => $self->{'util'}->wrap(
-                container => 'error',
-                error     => 'No matches found'
-            )
+        return( $self->displaySearch(
+            error => qq(No matches for '$self->{'arg'}->{'search'}' found.)
         ) );
     }
 
