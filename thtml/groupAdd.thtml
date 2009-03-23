@@ -14,7 +14,7 @@
                     <div class="valnochg"><input name="description" /></div>
                 </div>
 
-                <br />
+                <div style="padding-top:8px; padding-bottom:8px;"><!-- tmpl_var name="error" --></div>
 
                 <input type="submit" class="button" name="" value=" Create " />
            </form>
