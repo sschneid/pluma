@@ -673,7 +673,28 @@ sub create {
         };
 
         /group/ && do {
-            $self->{'arg'}->{'group'} = $self->{'arg'}->{'cn'};
+            return( $self->displayCreate(
+                error => qq(Pleaes enter a group name and description.)
+            ) )
+                unless ( $self->{'arg'}->{'cn'} && $self->{'arg'}->{'description'} );
+
+            # Check for existing group
+            if ( $self->{'ldap'}->fetch(
+                base   => $self->{'config'}->{'ldap.Base.Group'},
+                filter => 'cn=' . $self->{'arg'}->{'cn'},
+                attrs  => [ 'dn' ]
+            ) ) {
+                return( $self->displayCreate(
+                    error =>
+                        qq(<a href="?group=$self->{'arg'}->{'cn'}">)
+                      . qq(Group ')
+                      . $self->{'arg'}->{'cn'}
+                      . qq(' already exists!)
+                      . qq(</a>)
+                ) )
+            }
+
+           $self->{'arg'}->{'group'} = $self->{'arg'}->{'cn'};
 
             $create->{'dn'} = 'cn=' . $self->{'arg'}->{'cn'} . ','
                 . $self->{'config'}->{'ldap.Base.Group'};
