@@ -1,5 +1,15 @@
 Revision history of pluma
 
+1.8
+* Mon Mar 23 2009 Scott Schneider <sschneid@gmail.com>
+- Support for non-POSIX users & groups (group.objectClass, user.POSIX)
+- Additional support for multiple user DNs (creating & searching)
+- Configurable default loginShell
+- Bug fixes:
+    - Fixed search bugs introduced in 1.7
+    - Check for existing users/groups before creating
+    - Audit logging tweaks
+
 1.7
 * Thu Jan 29 2008 Scott Schneider <sschneid@gmail.com>
 - Support for multiple user base DNs
