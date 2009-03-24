@@ -1,0 +1,97 @@
+
+        <script type="text/javascript" src="pluma.js"></script>
+
+        <div id="mainTitle">Editing existing user <!-- tmpl_var name="uid" --></div>
+
+          <div id="content">
+            <form method="post" action="">
+
+            <input type="hidden" name="rm" value="modUser" />
+
+            <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
+            <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
+
+            <input type="hidden" name="baseWas" value="<!-- tmpl_var name="base" -->" />
+            <input type="hidden" name="cnWas" value="<!-- tmpl_var name="cn" -->" />
+            <input type="hidden" name="mailWas" value="<!-- tmpl_var name="mail" -->" />
+
+            <input type="hidden" name="cGroups" value="<!-- tmpl_var name="cGroups" -->" />
+            <input type="hidden" name="cHosts"  value="<!-- tmpl_var name="cHosts"  -->" />
+
+            <table>
+              <tr>
+                <td width="10%"><div class="attr">Full name:</div></td>
+                <td width="35%"><div class="valnochg"><input name="cn" value="<!-- tmpl_var name="cn" -->" /></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr">E-mail address:</div></td>
+                <td width="35%"><div class="valnochg"><input name="mail" value="<!-- tmpl_var name="mail" -->" /></div></td>
+              </tr>
+               <tr>
+                <td width="10%"><div class="attr"></div></td>
+                <td width="35%"><div class="valnochg"></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr">Org unit:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="bases" --></div></td>
+              </tr>
+            </table>
+
+            <br />
+
+            <table>
+              <tr>
+                <td width="45%">
+                  <div class="objectTitle">Availabile groups:</div>
+                  <!-- tmpl_var name="availGroups" -->
+                </td>
+                <td width="10%">
+                  <center>
+                    <input type="hidden" name="userGroups_values" value="" />
+                    <input type="button" name="group_add" class="button" value="&gt;&gt;" onclick="selectItem(&#39;availGroups&#39;, &#39;userGroups&#39;)" ondblclick="selectItem('availGroups', 'userGroups')" /><br />
+                    <input type="button" name="group_del" class="button" value="&lt;&lt;" onclick="selectItem(&#39;availGroups&#39;, &#39;userGroups&#39;, 0)" ondblclick="selectItem('availGroups', 'userGroups', 0)" />
+                  </center>
+                </td>
+                <td width="45%">
+                  <div class="objectTitle">Groups this user is a member of:</div>
+                  <!-- tmpl_var name="userGroups" -->
+                </td>
+              </tr>
+            </table>
+
+            <br />
+
+            <input type="submit" class="button" name="" value=" Submit changes " />
+            </form>
+
+            <div id="divider">&nbsp;</div>
+
+            <table>
+              <tr>
+                <td>
+                  <form name="pwChange" method="post" action="">
+                    <input type="hidden" name="rm" value="password" />
+                    <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
+                    <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
+                    New password: &nbsp;
+                    <input type="password" name="password" /> &nbsp;
+                    Confirm: &nbsp;
+                    <input type="password" name="passwordConfirm" /> &nbsp;
+                    <input type="submit" class="button" name="" value=" Change password " onclick="return validatePwd()" />
+                  </form>
+                </td>
+                <td align="right">
+                  <form method="post" action="">
+                    <input type="hidden" name="rm" value="delete" />
+                    <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
+                    <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
+                    <input type="submit" class="button" name="" value=" Delete this user " onclick="return delUserConfirm()" />
+                  </form>
+                </td>
+              </tr>
+            </table>
+
+          </div>
+
