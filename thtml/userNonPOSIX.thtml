@@ -16,7 +16,6 @@
             <input type="hidden" name="mailWas" value="<!-- tmpl_var name="mail" -->" />
 
             <input type="hidden" name="cGroups" value="<!-- tmpl_var name="cGroups" -->" />
-            <input type="hidden" name="cHosts"  value="<!-- tmpl_var name="cHosts"  -->" />
 
             <table>
               <tr>
