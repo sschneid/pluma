@@ -108,6 +108,30 @@ sub delete { return( shift->{'ldap'}->delete( @_ ) ); }
 
 sub modify { return( shift->{'ldap'}->modify( @_ ) ); }
 
+sub move {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    my ( $key, $base ) = split( /\,/, $arg->{'dn'}, 2 );
+
+    my $obj = $self->fetch(
+        base   => $base,
+        filter => $key,
+        attrs  => [ '*' ]
+    );
+
+    delete $obj->{'dn'};
+
+    my $dn = $key . ',' . $arg->{'base'};
+
+    $self->add( $dn, attr => [ %{$obj} ] );
+    $self->delete( $arg->{'dn'} );
+
+    return( 1 );
+}
+
 sub getLabels {
     my $self = shift;
 
