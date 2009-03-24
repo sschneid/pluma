@@ -429,6 +429,25 @@ sub displayUser {
 
     $user->{'cGroups'} = join( ',', sort keys %{$group->{1}} );
 
+    # Base
+    if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+        $user->{'base'} = $1 if $user->{'dn'} =~ /^uid=$user->{'uid'}\,\s*(.*)$/;
+
+        my $labels = $self->{'ldap'}->getLabels(
+            base => $self->{'config'}->{'ldap.Base.User'}
+        );
+
+        $user->{'bases'} = $self->{'cgi'}->popup_menu(
+            -name    => 'base',
+            -class   => 'drpoBox',
+            -values  => [ sort {
+                            $labels->{$a} cmp $labels->{$b}
+                        } keys %{$labels} ],
+            -default => $user->{'base'},
+            -labels  => $labels
+        );
+    }
+
     # Render
     return( $self->{'util'}->wrapAll( container => 'user', %{$user} ) );
 }
@@ -462,6 +481,43 @@ sub modGroup {
 
 sub modUser {
     my $self = shift;
+
+    # Are we changing bases?
+    if (
+        ( $self->{'arg'}->{'base'} && $self->{'arg'}->{'baseWas'} ) &&
+        ( $self->{'arg'}->{'base'} ne $self->{'arg'}->{'baseWas'} )
+    ) {
+        # Move the person object
+        $self->{'ldap'}->move(
+            dn    => $self->{'arg'}->{'dn'},
+            base  => $self->{'arg'}->{'base'}
+        );
+
+        # Fix group membership
+        my $group = $self->{'ldap'}->fetch(
+            base   => $self->{'config'}->{'ldap.Base.Group'},
+            filter => 'uniqueMember=' . $self->{'arg'}->{'dn'},
+            attrs  => [ 'cn' ]
+        );
+
+        if ( $group ) {
+            $group = { 'g' => $group } if $group->{'cn'};
+
+            foreach my $g ( keys %{$group} ) {
+                $self->{'ldap'}->modify(
+                    'cn=' . $group->{$g}->{'cn'} . ','
+                          . $self->{'config'}->{'ldap.Base.Group'},
+                    add    => { 'uniqueMember' => 'uid='
+                                  . $self->{'arg'}->{'user'}
+                                  . ',' . $self->{'arg'}->{'base'} },
+                    delete => { 'uniqueMember' => $self->{'arg'}->{'dn'} }
+                );
+            }
+        }
+
+        $self->{'arg'}->{'dn'} =
+            'uid=' . $self->{'arg'}->{'user'} . ',' . $self->{'arg'}->{'base'};
+    }
 
     # Determine whether to add/delete hosts & groups based on form submission
     foreach my $a ( qw/ userHosts_values cHosts userGroups_values cGroups / ) {
