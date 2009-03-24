@@ -125,7 +125,7 @@ sub readConfig {
 
         while( <CONFILE> ) {
             $config->{$1} = $2 if /^\$(.+?):.+?"(.+?)"/;
-            ( @{$config->{$1}} ) = split / /, $2 if /^\@(.+?):.+?"(.+?)"/;
+            ( @{$config->{$1}} ) = split( / /, $2 ) if /^\@(.+?):.+?"(.+?)"/;
         }
         close( CONFILE );
     }
