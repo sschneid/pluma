@@ -292,9 +292,9 @@ sub displayGroup {
     # Single-member group support
     if ( $member->{'cn'} ) {
         my $uid = $self->{'ldap'}->fetch(
-            base => $self->{'config'}->{'ldap.Base.User'},
+            base   => $self->{'config'}->{'ldap.Base.User'},
             filter => "cn = $member->{'cn'}",
-            attrs => [ 'uid' ]
+            attrs  => [ 'uid' ]
         )->{'uid'};
 
         $member = {
@@ -475,8 +475,8 @@ sub modGroup {
             $self->{'arg'}->{$attr . 'Was'} ||= 'null';
 
             $self->{'util'}->log(
-                what => 'g:' . $self->{'arg'}->{'group'},
-                item => $attr,
+                what   => 'g:' . $self->{'arg'}->{'group'},
+                item   => $attr,
                 object => 
                     $self->{'arg'}->{$attr}
                   . ' (was ' . $self->{'arg'}->{$attr . 'Was'} . ')',
@@ -577,8 +577,8 @@ sub modUser {
                         );
 
                         $self->{'util'}->log(
-                            what => 'u:' . $self->{'arg'}->{'user'},
-                            item => 'host',
+                            what   => 'u:' . $self->{'arg'}->{'user'},
+                            item   => 'host',
                             object => $obj,
                             action => $action,
                         ) if $self->{'audit'};
@@ -594,8 +594,8 @@ sub modUser {
                         );
 
                         $self->{'util'}->log(
-                            what => 'u:' .  $self->{'arg'}->{'user'},
-                            item => 'group',
+                            what   => 'u:' .  $self->{'arg'}->{'user'},
+                            item   => 'group',
                             object => $obj,
                             action => $action,
                         ) if $self->{'audit'};
@@ -617,8 +617,8 @@ sub modUser {
             $self->{'arg'}->{$attr . 'Was'} ||= 'null';
 
             $self->{'util'}->log(
-                what => 'u:' . $self->{'arg'}->{'user'},
-                item => $attr,
+                what   => 'u:' . $self->{'arg'}->{'user'},
+                item   => $attr,
                 object => 
                     $self->{'arg'}->{$attr}
                   . ' (was ' . $self->{'arg'}->{$attr . 'Was'} . ')',
@@ -673,7 +673,7 @@ sub create {
                 ? $self->{'arg'}->{'base'}
                 : $self->{'config'}->{'ldap.Base.User'};
 
-            $create->{'attr'}->{'cn'}    = $self->{'arg'}->{'cn'};
+            $create->{'attr'}->{'cn'} = $self->{'arg'}->{'cn'};
 
             $create->{'attr'}->{'sn'} = $create->{'attr'}->{'cn'};
             $create->{'attr'}->{'sn'} =~ s/^.+?(\w+)$/$1/;
@@ -732,7 +732,7 @@ sub create {
             }
 
             $self->{'util'}->log(
-                what => 'u:' .  $self->{'arg'}->{'user'},
+                what   => 'u:' .  $self->{'arg'}->{'user'},
                 action => 'create'
             ) if $self->{'audit'};
         };
@@ -780,7 +780,7 @@ sub create {
             / ];
 
             $self->{'util'}->log(
-                what => 'g:' .  $self->{'arg'}->{'group'},
+                what   => 'g:' .  $self->{'arg'}->{'group'},
                 action => 'create'
             ) if $self->{'audit'};
         };
@@ -823,7 +823,7 @@ sub delete {
         }
 
         $self->{'util'}->log(
-            what => 'u:' .  $self->{'arg'}->{'user'},
+            what   => 'u:' .  $self->{'arg'}->{'user'},
             action => 'delete'
         ) if $self->{'audit'};
 
@@ -837,7 +837,7 @@ sub delete {
         );
 
         $self->{'util'}->log(
-            what => 'g:' .  $self->{'arg'}->{'group'},
+            what   => 'g:' .  $self->{'arg'}->{'group'},
             action => 'delete'
         ) if $self->{'audit'};
 
@@ -866,7 +866,7 @@ sub password {
     );
 
     $self->{'util'}->log(
-        what => 'u:' .  $self->{'arg'}->{'user'},
+        what   => 'u:' .  $self->{'arg'}->{'user'},
         action => 'password modify'
     ) if $self->{'audit'};
 
