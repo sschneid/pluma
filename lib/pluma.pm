@@ -133,7 +133,7 @@ sub displaySearch {
             base => $self->{'config'}->{'ldap.Base.User'}
         );
 
-        $labels->{''} = 'All';
+        $labels->{''} = ' All ';
 
         return( $self->{'util'}->wrapAll(
             container => 'search',
@@ -925,7 +925,19 @@ sub search {
     # Return a list
     return( $self->{'util'}->wrapAll(
         container => 'results',
-        results    => sub {
+        search    => $self->{'arg'}->{'search'} || '*',
+        base      => sub {
+            if ( $base ) {
+                my $labels = $self->{'ldap'}->getLabels(
+                    base => $self->{'config'}->{'ldap.Base.User'}
+                );
+                return( $labels->{$base} ) ;
+            }
+            else {
+                return( undef );
+            }
+        },
+        results   => sub {
             my ( $results );
 
             foreach ( sort keys %{$search} ) {
@@ -950,7 +962,8 @@ sub search {
             }
 
             return( $results );
-        }
+        },
+        total     => scalar keys %{$search}
     ) );
 }
 

@@ -1,5 +1,7 @@
 
                 <div id="mainTitle">Search results</div>
+                
+                <div style="padding-bottom: 6px;">Displaying <b><!-- tmpl_var name="total" --></b> results found matching '<!-- tmpl_var name="search" -->':</div>
 
                 <div id="content">
                     <!-- tmpl_var name="results" -->
