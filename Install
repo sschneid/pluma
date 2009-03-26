@@ -152,5 +152,31 @@ Web set-up should be relatively simple.  Full Apache set-up is outside of the sc
 
             Order allow,deny
             Allow from all
-        </Directory>
+
+* pluma runs great under mod_perl.  Because mod_perl doesn't support relative paths, however, a few changes are necessary.  The instructions below suppose that you have pluma installed in /var/www/pluma/.
+
+    - index.cgi: 
+
+        The full path to the pluma libraries must be specified in the BEGIN statement.
+
+            BEGIN { unshift @INC, '/var/www/pluma/lib'; }
+
+    - lib/pluma.pm:
+
+        The full path to the configuration file must be specified.
+
+            $self->{'config'} = $self->{'util'}->readConfig(
+                configFile => '/var/www/pluma/pluma.cfg'
+            )
+            || die qq(Error reading configuration file pluma.cfg\n);
+
+    - lib/pluma/Util.pm:
+
+        HTML::Template needs the full path to template files.  Change all of the instance of 'thtml/' to a fully-qualified path.
+
+            my $template = $self->load_tmpl(
+                '/var/www/pluma/thtml/' . $arg->{'container'} . '.thtml',
+                die_on_bad_params => 0,
+                cache => 1
+            );
 
