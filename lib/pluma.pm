@@ -333,6 +333,10 @@ sub displayUser {
     )
     || return( $self->search( search => $self->{'arg'}->{'user'} ) );
 
+    for ( @{$user->{'objectClass'}} ) { $user->{'_objectClass'}->{lc( $_ )} = 1; }
+    $self->{'config'}->{'user.POSIX'} = 0
+        unless $user->{'_objectClass'}->{'posixaccount'};
+
     if ( $self->{'config'}->{'user.POSIX'} ) {
         # Login shells
         unless ( $self->{'config'}->{'shells'} ) {
@@ -738,7 +742,10 @@ sub create {
                 / ];
             }
 
-            if ( $self->{'config'}->{'user.generatePassword'} ) {
+            if (
+                $self->{'config'}->{'user.generatePassword'} ||
+                $self->{'config'}->{'mail.WelcomeLetter'}
+            ) {
                 for ( 1..10 ) {
                     $create->{'password'} .= ( 0..9, 'A'..'Z', 'a'..'z')[rand 62];
                 }
@@ -747,6 +754,30 @@ sub create {
                     text   => $create->{'password'},
                     digest => $self->{'config'}->{'pw.Encrypt'}
                 )
+            }
+
+            if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
+                my $message = $self->{'util'}->wrap(
+                    container => 'email',
+                    cn        => $self->{'arg'}->{'cn'},
+                    uid       => $self->{'arg'}->{'uid'},
+                    password  => $create->{'password'}
+                );
+
+                use MIME::Lite;
+
+                {
+                    local $ENV{'PATH'} = '';
+
+                    my $email = MIME::Lite->new(
+                        From    => 'noreply@mercycorps.org',
+                        To      => $create->{'attr'}->{'mail'},
+                        Subject => 'Mercy Corps web access',
+                        Data    => $message 
+                    );
+
+                    $email->send();
+                }
             }
 
             $self->{'util'}->log(
