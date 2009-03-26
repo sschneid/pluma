@@ -1,0 +1,12 @@
+Hi <!-- tmpl_var name="cn" -->,
+
+Welcome to CompanyDotCom!
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy
+nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+
+  username: <!-- tmpl_var name="uid" -->
+  password: <!-- tmpl_var name="password" -->
+
+Additional text goes here.
+
