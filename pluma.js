@@ -67,6 +67,19 @@ function findFormObject(name, doc) {
   return null;
 }
 
+function formCopy() {
+  var mailformat = document.create.mailformat.value;
+
+  var uid = document.create.uid.value;
+//  var fullname = document.create.cn.value.split(' ', 2);
+
+  var mail = mailformat.replace("%uid", uid);
+//  mail = mailformat.replace("%givenName", fullname[0]);
+//  mail = mailformat.replace("%sn", fullname[1]);
+
+  document.create.mail.value = mail;
+}
+
 function delGroupConfirm() {
   return confirm("Are you sure you want to delete this group?");
 }
