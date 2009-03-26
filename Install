@@ -67,6 +67,17 @@ pluma reads in most of it's configuration directives through a flat text configr
 
         $audit.log: "/var/log/httpd/pluma-audit_log"
 
+* Identifying users & groups in the directory
+
+    - These options allow pluma to identify a user or group only if it belongs to a specified LDAP object class.
+    - Additionally, a key can be used to identify a unique user.  'uid' is the default.
+
+    - Example:
+
+        $user.objectClass: "companyDotComUser"
+        $group.objectClass: "companyDotComGroup"
+        $user.uniqueID: "uid"
+
 * Configurable user options
 
     - These options allow for setting different configurable options for users (such as a choice of login shells).
@@ -79,24 +90,27 @@ pluma reads in most of it's configuration directives through a flat text configr
 
     - GID ($default.GID), loginShell ($default.Shell), mail format ($mail.Format), homeDirectory prefix ($prefix.Home), and OU inclusion (@user.objectClass) can be set.  Defaults are used if values are not set.
     - If not creating POSIX users set user.POSIX to "0".  Note that only uid, cn, givenName, sn, mail, and userPassword are allowed for non-POSIX users.
+    - $user.generatePassword determines whether a randomized password is generated during account creation.
     - Valid variables in $mail.Format are '%givenName', '%sn', and '%uid'.
 
     - Example:
 
-        $default.GID: "100"
-        $default.Shell: "/bin/false"
-        $prefix.Home: "/home"
-        $mail.Format: "%uid@company.com"
         $user.POSIX: "1"
-        @user.ObjectClass: "companyDotComUser"
+        $prefix.Home: "/home"
+        $default.Shell: "/bin/false"
+        $default.GID: "100"
+        $user.generatePassword: "1"
+        $mail.Format: "%uid@company.com"
 
-* Group object classeses
+* Welcome letter
 
-    - It is possible to limit the groups displayed by object class with the $group.objectClass setting.
+    - If enabled, a "welcome letter" containing the username and randomized password can be emailed to a user at the time of account creation.
 
     - Example:
 
-        $group.objectClass: "companyDotComGroup"
+        $mail.WelcomeLetter: "0"
+        $mail.WelcomeLetter.from: "noreply@company.com"
+        $mail.WelcomeLetter.subject: "Welcome to CompanyDotCom!"
 
 * Internal LDAP limits
 
