@@ -152,6 +152,7 @@ Web set-up should be relatively simple.  Full Apache set-up is outside of the sc
 
             Order allow,deny
             Allow from all
+        </Directory>
 
 * pluma runs great under mod_perl.  Because mod_perl doesn't support relative paths, however, a few changes are necessary.  The instructions below suppose that you have pluma installed in /var/www/pluma/.
 
