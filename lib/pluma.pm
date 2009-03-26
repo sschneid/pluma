@@ -770,9 +770,9 @@ sub create {
                     local $ENV{'PATH'} = '';
 
                     my $email = MIME::Lite->new(
-                        From    => 'noreply@mercycorps.org',
+                        From    => $self->{'config'}->{'mail.WelcomeLetter.from'},
                         To      => $create->{'attr'}->{'mail'},
-                        Subject => 'Mercy Corps web access',
+                        Subject => $self->{'config'}->{'mail.WelcomeLetter.subject'},
                         Data    => $message 
                     );
 
