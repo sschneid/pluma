@@ -1,17 +1,22 @@
 
+        <script type="text/javascript" src="pluma.js"></script>
+
         <div id="mainTitle">Create new user</div>
 
             <div id="content">
 
-            <form method="post" action="">
+            <form name="create" method="post" action="">
                 <input type="hidden" name="rm" value="create" />
                 <input type="hidden" name="create" value="user" />
+                <input type="hidden" name="mailformat" value="<!-- tmpl_var name="mailformat" -->" />
 
                 <div class="objectItem">
                     <div class="attr">Username (login):</div>
-                    <div class="valnochg"><input name="uid" /></div>
+                    <div class="valnochg"><input name="uid" onchange="formCopy()"/></div>
                     <div class="attr">Full name:</div>
                     <div class="valnochg"><input name="cn" /></div>
+                    <div class="attr">E-mail address:</div>
+                    <div class="valnochg"><input name="mail" /></div>
                     <!-- tmpl_var name="base" -->
                 </div>
 
