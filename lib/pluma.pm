@@ -182,8 +182,8 @@ sub displayCreate {
         );
 
         return( $self->{'util'}->wrapAll(
-            container => $self->{'arg'}->{'create'} . 'Add',
-            base      => $self->{'util'}->wrap(
+            container  => $self->{'arg'}->{'create'} . 'Add',
+            base       => $self->{'util'}->wrap(
                 container => 'selectBase',
                 bases     => $self->{'cgi'}->popup_menu(
                     -name    => 'base',
@@ -194,13 +194,15 @@ sub displayCreate {
                     -labels  => $labels,
                 )
             ),
-            error     => $error
+            mailformat => $self->{'config'}->{'mail.Format'},
+            error      => $error
         ) );
     }
     else {
         return( $self->{'util'}->wrapAll(
-            container => $self->{'arg'}->{'create'} . 'Add',
-            error     => $error
+            container  => $self->{'arg'}->{'create'} . 'Add',
+            mailformat => $self->{'config'}->{'mail.Format'},
+            error      => $error
         ) );
     }
 }
@@ -683,7 +685,12 @@ sub create {
 
             $create->{'attr'}->{'uid'} = $self->{'arg'}->{'uid'};
 
-            if ( $self->{'config'}->{'mail.Format'} ) {
+            $create->{'attr'}->{'mail'} = $self->{'arg'}->{'mail'}
+                if $self->{'arg'}->{'mail'};
+
+            if (
+                $self->{'config'}->{'mail.Format'} && !$create->{'attr'}->{'mail'}
+            ) {
                 $create->{'attr'}->{'mail'} = $self->{'config'}->{'mail.Format'};
 
                 foreach ( qw/ sn givenName uid / ) {
@@ -729,6 +736,17 @@ sub create {
                     posixAccount
                     account
                 / ];
+            }
+
+            if ( $self->{'config'}->{'user.generatePassword'} ) {
+                for ( 1..10 ) {
+                    $create->{'password'} .= ( 0..9, 'A'..'Z', 'a'..'z')[rand 62];
+                }
+
+                $create->{'attr'}->{'userPassword'} = $self->{'util'}->pwEncrypt(
+                    text   => $create->{'password'},
+                    digest => $self->{'config'}->{'pw.Encrypt'}
+                )
             }
 
             $self->{'util'}->log(
@@ -931,7 +949,7 @@ sub search {
                 my $labels = $self->{'ldap'}->getLabels(
                     base => $self->{'config'}->{'ldap.Base.User'}
                 );
-                return( $labels->{$base} ) ;
+                return( $labels->{$base} );
             }
             else {
                 return( undef );
