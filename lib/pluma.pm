@@ -952,7 +952,7 @@ sub search {
                 return( $labels->{$base} );
             }
             else {
-                return( undef );
+                return( '' );
             }
         },
         results   => sub {
