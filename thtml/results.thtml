@@ -12,9 +12,7 @@
                 
                     <div style="padding-top: 16px; padding-bottom: 8px;">Displaying <b><!-- tmpl_var name="total" --></b> results found matching '<!-- tmpl_var name="search" -->':</div>
 
-                    <div id="content">
-                        <!-- tmpl_var name="results" -->
-                    </div>
+                    <!-- tmpl_var name="results" -->
 
                 </div>
 
