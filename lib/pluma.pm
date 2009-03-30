@@ -971,11 +971,14 @@ sub search {
         ) );
     }
 
-    my $labels = $self->{'ldap'}->getLabels(
-        base => $self->{'config'}->{'ldap.Base.User'}
-    );
+    my ( $labels );
+    if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+        $labels = $self->{'ldap'}->getLabels(
+            base => $self->{'config'}->{'ldap.Base.User'}
+        );
 
-    $labels->{''} = ' All ';
+        $labels->{''} = ' All ';
+    }
 
     # Return a list
     return( $self->{'util'}->wrapAll(
