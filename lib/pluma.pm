@@ -971,15 +971,6 @@ sub search {
         ) );
     }
 
-    my ( $labels );
-    if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
-        $labels = $self->{'ldap'}->getLabels(
-            base => $self->{'config'}->{'ldap.Base.User'}
-        );
-
-        $labels->{''} = ' All ';
-    }
-
     # Return a list
     return( $self->{'util'}->wrapAll(
         container => 'results',
@@ -1011,14 +1002,26 @@ sub search {
             return( $results );
         },
         total     => scalar keys %{$search},
-        base      => $self->{'cgi'}->popup_menu(
-            -name   => 'base',
-            -class  => 'dropBox',
-            -values => [ sort {
-                            $labels->{$a} cmp $labels->{$b}
-                        } keys %{$labels} ],
-            -labels => $labels
-        )
+        base      => sub {
+            unless ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+                return( '' );
+            }
+
+            my $labels = $self->{'ldap'}->getLabels(
+                base => $self->{'config'}->{'ldap.Base.User'}
+            );
+
+            $labels->{''} = ' All ';
+
+            return( $self->{'cgi'}->popup_menu(
+                -name   => 'base',
+                -class  => 'dropBox',
+                -values => [ sort {
+                                $labels->{$a} cmp $labels->{$b}
+                            } keys %{$labels} ],
+                -labels => $labels
+            ) );
+        }
     ) );
 }
 
