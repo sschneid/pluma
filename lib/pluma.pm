@@ -195,12 +195,32 @@ sub displayCreate {
                 )
             ),
             mailformat => $self->{'config'}->{'mail.Format'},
+            letter     => sub {
+                if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
+                    return( $self->{'util'}->wrap(
+                        container => 'selectWelcomeLetter'
+                    ) );
+                }
+                else {
+                    return( '' );
+                }
+            },
             error      => $error
         ) );
     }
     else {
         return( $self->{'util'}->wrapAll(
             container  => $self->{'arg'}->{'create'} . 'Add',
+            letter     => sub {
+                if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
+                    return( $self->{'util'}->wrap(
+                        container => 'selectWelcomeLetter'
+                    ) );
+                }
+                else {
+                    return( '' );
+                }
+            },
             mailformat => $self->{'config'}->{'mail.Format'},
             error      => $error
         ) );
@@ -744,7 +764,10 @@ sub create {
 
             if (
                 $self->{'config'}->{'user.generatePassword'} ||
-                $self->{'config'}->{'mail.WelcomeLetter'}
+                (
+                    $self->{'config'}->{'mail.WelcomeLetter'}  &&
+                    $self->{'arg'}->{'mail.WelcomeLetter'}
+                )
             ) {
                 for ( 1..10 ) {
                     $create->{'password'} .= ( 0..9, 'A'..'Z', 'a'..'z')[rand 62];
@@ -756,7 +779,10 @@ sub create {
                 )
             }
 
-            if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
+            if (
+                $self->{'config'}->{'mail.WelcomeLetter'} &&
+                $self->{'arg'}->{'mail.WelcomeLetter'}
+            ) {
                 my $message = $self->{'util'}->wrap(
                     container => 'email',
                     cn        => $self->{'arg'}->{'cn'},
