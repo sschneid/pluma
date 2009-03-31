@@ -241,8 +241,15 @@ sub displayGroup {
     )
     || return( $self->search( search => $self->{'arg'}->{'group'} ) );
 
+    for ( @{$group->{'objectClass'}} ) { $group->{'_objectClass'}->{lc( $_ )} = 1; }
+    $self->{'config'}->{'group.POSIX'} = 0
+        unless $group->{'_objectClass'}->{'posixgroup'};
+
     # Primary
-    if ( $self->{'config'}->{'user.POSIX'} ) {
+    if (
+        $self->{'config'}->{'user.POSIX'} &&
+        $self->{'config'}->{'group.POSIX'}
+    ) {
         my $primary = $self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.Base.User'},
             filter => 'gidNumber=' . $group->{'gidNumber'},
@@ -338,7 +345,12 @@ sub displayGroup {
     }
 
     # Render
-    return( $self->{'util'}->wrapAll( container => 'group', %{$group} ) );
+    if ( $self->{'config'}->{'group.POSIX'} ) {
+        return( $self->{'util'}->wrapAll( container => 'group', %{$group} ) );
+    }
+    else {
+        return( $self->{'util'}->wrapAll( container => 'groupNonPOSIX', %{$group} ) );
+    }
 }
 
 sub displayUser {
@@ -1010,16 +1022,7 @@ sub search {
             my ( $results );
 
             foreach ( sort keys %{$search} ) {
-                my ( $type );
-
-                if (
-                    $search->{$_}->{'uid'} || $search->{$_}->{'uniqueMember'}
-                ) {
-                    $type = $search->{$_}->{'uid'} ? 'user' : 'group';
-                }
-                else {
-                    next;
-                }
+                my $type = $search->{$_}->{'uid'} ? 'user' : 'group';
 
                 $results .= $self->{'util'}->wrap(
                     container => 'resultsItem',
