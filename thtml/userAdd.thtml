@@ -15,8 +15,12 @@
                     <div class="valnochg"><input name="uid" onchange="formCopy()"/></div>
                     <div class="attr">Full name:</div>
                     <div class="valnochg"><input name="cn" /></div>
+
+                    <br />
+
                     <div class="attr">E-mail address:</div>
                     <div class="valnochg"><input name="mail" /></div>
+                    <!-- tmpl_var name="letter" -->
                     <!-- tmpl_var name="base" -->
                 </div>
 
