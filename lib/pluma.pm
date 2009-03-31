@@ -489,6 +489,13 @@ sub displayUser {
             -labels  => $labels
         );
     }
+    else {
+        $user->{'bases'} = $self->{'cgi'}->popup_menu(
+            -name    => 'base',
+            -class   => 'drpoBox',
+            -values  => [ 'Users' ]
+       );
+    }
 
     # Render
     if ( $self->{'config'}->{'user.POSIX'} ) {
