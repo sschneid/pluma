@@ -764,6 +764,11 @@ sub create {
                     password  => $create->{'password'}
                 );
 
+                $self->{'config'}->{'mail.WelcomeLetter.from'} 
+                    ||= 'noreply';
+                $self->{'config'}->{'mail.WelcomeLetter.subject'}
+                    ||= 'A new account has been created for you!';
+
                 use MIME::Lite;
 
                 {
