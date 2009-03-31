@@ -1,0 +1,65 @@
+
+        <script type="text/javascript" src="pluma.js"></script>
+
+        <div id="mainTitle">Viewing group <!-- tmpl_var name="cn" --></div>
+
+          <div id="content">
+            <form method="post" action="">
+
+            <input type="hidden" name="rm" value="modGroup" />
+
+            <input type="hidden" name="group" value="<!-- tmpl_var name="cn" -->" />
+
+            <input type="hidden" name="descriptionWas" value="<!-- tmpl_var name="description" -->" />
+
+            <table>
+              <tr>
+                <td width="10%"><div class="attr">Description:</div></td>
+                <td width="35%"><div class="valnochg"><input name="description" value="<!-- tmpl_var name="description" -->" /></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"></td>
+                <td width="35%"></td>
+              </tr>
+            </table>
+
+            <br />
+
+            <table>
+              <tr>
+                <td width="45%" valign="top">
+                  <div class="objectTitle">Member of this group:</div>
+                  <!-- tmpl_var name="members" -->
+                </td>
+              </tr>
+            </table>
+
+            <br />
+
+            <input type="submit" class="button" name="" value=" Submit changes " onclick="return chgConfirm()" />
+            </form>
+
+            <div id="divider">&nbsp;</div>
+
+            <table>
+              <tr>
+                <td>
+                  <form method="post" action="">
+                    <input type="hidden" name="rm" value="search" />
+                    Add a user: &nbsp;
+                    <input name="search" /> &nbsp;
+                    <input type="submit" class="button" name="" value=" Search " />
+                  </form>
+                </td>
+                <td align="right">
+                  <form method="post" action="">
+                    <input type="hidden" name="rm" value="delete" />
+                    <input type="hidden" name="group" value="<!-- tmpl_var name="cn" -->" />
+                    <input type="submit" class="button" name="" value=" Delete this group " onclick="return delGroupConfirm()" />
+                  </form>
+                </td>
+              </tr>
+            </table>
+        </div>
+
