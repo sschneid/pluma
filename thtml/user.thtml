@@ -11,6 +11,7 @@
             <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
             <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
 
+            <input type="hidden" name="baseWas" value="<!-- tmpl_var name="base" -->" />
             <input type="hidden" name="cnWas" value="<!-- tmpl_var name="cn" -->" />
             <input type="hidden" name="loginShellWas" value="<!-- tmpl_var name="loginShell" -->" />
             <input type="hidden" name="gidNumberWas"  value="<!-- tmpl_var name="gidNumber" -->" />
@@ -48,6 +49,15 @@
 
                 <td width="10%"><div class="attr">Login shell:</div></td>
                 <td width="35%"><div class="valnochg"><!-- tmpl_var name="shells" --></div></td>
+              </tr>
+               <tr>
+                <td width="10%"><div class="attr">Org unit:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="bases" --></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr"></div></td>
+                <td width="35%"><div class="valnochg"></div></td>
               </tr>
             </table>
 
