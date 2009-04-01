@@ -119,7 +119,7 @@ sub move {
     my $obj = $self->fetch(
         base   => $base,
         filter => $key,
-        attrs  => [ '*' ]
+        attrs  => [ '*', 'nsAccountLock' ]
     );
 
     delete $obj->{'dn'};
