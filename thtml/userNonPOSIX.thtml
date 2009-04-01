@@ -4,6 +4,7 @@
         <div id="mainTitle">Editing existing user <!-- tmpl_var name="uid" --></div>
 
           <div id="content">
+            <div style="margin-bottom: 16px;"><!-- tmpl_var name="error" --></div>
             <form method="post" action="">
 
             <input type="hidden" name="rm" value="modUser" />
@@ -81,6 +82,7 @@
                     <input type="submit" class="button" name="" value=" Change password " onclick="return validatePwd()" />
                   </form>
                 </td>
+                <!-- tmpl_var name="disable" -->
                 <td align="right">
                   <form method="post" action="">
                     <input type="hidden" name="rm" value="delete" />
