@@ -4,7 +4,9 @@ pluma installation
 1. View and edit pluma.cfg
 ------------------------------
 
-pluma reads in most of it's configuration directives through a flat text configruation file (pluma.cfg).  This file must be in the located in the base of pluma's application directory.
+pluma reads in most of it's configuration directives through a flat text
+configruation file (pluma.cfg).  This file must be in the located in the base
+of pluma's application directory.
 
 * Format for a single-value option is:
 
@@ -26,7 +28,8 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * LDAP OU set-up
 
-    - The base OUs for users, hosts, and groups must all be set-up within the configuration file.
+    - The base OUs for users, hosts, and groups must all be set-up within the
+      configuration file.
 
     - Example:
 
@@ -35,16 +38,20 @@ pluma reads in most of it's configuration directives through a flat text configr
         $ldap.Base.Host: "ou=Hosts,$ldap.Base"
         $ldap.Base.Group: "ou=Groups,$ldap.Base"
 
-    - If users exist in multiple bases, this is configurable as well.  For display purposes, a prefix can be set to be excluded from selection lists.  If ldap.Base.User is left blank, pluma will search ldap.Base for and use all OUs containing user objects.
+    - If users exist in multiple bases, this is configurable as well.  For
+      display purposes, a prefix can be set to be excluded from selection
+      lists.  If ldap.Base.User is left blank, pluma will search ldap.Base for
+      and use all OUs containing user objects.
 
     - Example:
 
-        @ldap.Base.User: "ou=People,dc=hq,$ldap.Base ou=People,dc=field,$ldap.Base"
+        @ldap.Base.User: "ou=People,dc=us,$ldap.Base ou=People,dc=uk,$ldap.Base"
         $prefix.Base.User: "ou=People,dc="
 
 * LDAP bind account
 
-    - An LDAP account with sufficient read/write access to the user, host, and group OUs must be set-up and specified.
+    - An LDAP account with sufficient read/write access to the user, host, and
+      group OUs must be set-up and specified.
 
     - Example:
 
@@ -53,7 +60,8 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * Password encryption
 
-    - Valid userPassword encryptions options are "crypt" (the default), "sha", and "ssha".  Digest::SHA1 and MIME::Base64 are required for SHA/SSHA.
+    - Valid userPassword encryptions options are "crypt" (the default), "sha",
+      and "ssha".  Digest::SHA1 and MIME::Base64 are required for SHA/SSHA.
 
     - Example:
 
@@ -61,7 +69,8 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * Audit logging
 
-    - All modification actions can be written to an audit log.  Make sure that the webserver user has access to write to this file.
+    - All modification actions can be written to an audit log.  Make sure that
+      the webserver user has access to write to this file.
 
     - Example:
 
@@ -69,8 +78,10 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * Identifying users & groups in the directory
 
-    - These options allow pluma to identify a user or group only if it belongs to a specified LDAP object class.
-    - Additionally, a key can be used to identify a unique user.  'uid' is the default.
+    - These options allow pluma to identify a user or group only if it belongs
+      to a specified LDAP object class.
+    - Additionally, a key can be used to identify a unique user.  'uid' is the
+      default.
 
     - Example:
 
@@ -80,7 +91,8 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * Configurable user options
 
-    - These options allow for setting different configurable options for users (such as a choice of login shells).
+    - These options allow for setting different configurable options for users
+      (such as a choice of login shells).
 
     - Example:
 
@@ -88,9 +100,14 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * New user defaults
 
-    - GID ($default.GID), loginShell ($default.Shell), mail format ($mail.Format), homeDirectory prefix ($prefix.Home), and OU inclusion (@user.objectClass) can be set.  Defaults are used if values are not set.
-    - If not creating POSIX users set user.POSIX to "0".  Note that only uid, cn, givenName, sn, mail, and userPassword are allowed for non-POSIX users.
-    - $user.generatePassword determines whether a randomized password is generated during account creation.
+    - GID ($default.GID), loginShell ($default.Shell), mail format
+      ($mail.Format), homeDirectory prefix ($prefix.Home), and OU inclusion
+      (@user.objectClass) can be set.  Defaults are used if values are not set.
+    - If not creating POSIX users set user.POSIX to "0".  Note that only uid,
+      cn, givenName, sn, mail, and userPassword are allowed for non-POSIX
+      users.
+    - $user.generatePassword determines whether a randomized password is
+      generated during account creation.
     - Valid variables in $mail.Format are '%givenName', '%sn', and '%uid'.
 
     - Example:
@@ -104,7 +121,8 @@ pluma reads in most of it's configuration directives through a flat text configr
 
 * Welcome letter
 
-    - If enabled, a "welcome letter" containing the username and randomized password can be emailed to a user at the time of account creation.
+    - If enabled, a "welcome letter" containing the username and randomized
+      password can be emailed to a user at the time of account creation.
 
     - Example:
 
@@ -126,7 +144,8 @@ pluma reads in most of it's configuration directives through a flat text configr
 2. Apache set-up
 ----------------
 
-Web set-up should be relatively simple.  Full Apache set-up is outside of the scope of this installation document.
+Web set-up should be relatively simple.  Full Apache set-up is outside of the
+scope of this installation document.
 
 * AuthLDAP is required for Apache set-up.
 
@@ -154,11 +173,14 @@ Web set-up should be relatively simple.  Full Apache set-up is outside of the sc
             Allow from all
         </Directory>
 
-* pluma runs great under mod_perl.  Because mod_perl doesn't support relative paths, however, a few changes are necessary.  The instructions below suppose that you have pluma installed in /var/www/pluma/.
+* pluma runs great under mod_perl.  Because mod_perl doesn't support relative
+  paths, however, a few changes are necessary.  The instructions below suppose
+  that you have pluma installed in /var/www/pluma/.
 
     - index.cgi: 
 
-        The full path to the pluma libraries must be specified in the BEGIN statement.
+        The full path to the pluma libraries must be specified in the BEGIN
+        statement.
 
             BEGIN { unshift @INC, '/var/www/pluma/lib'; }
 
@@ -173,7 +195,8 @@ Web set-up should be relatively simple.  Full Apache set-up is outside of the sc
 
     - lib/pluma/Util.pm:
 
-        HTML::Template needs the full path to template files.  Change all of the instance of 'thtml/' to a fully-qualified path.
+        HTML::Template needs the full path to template files.  Change all of
+        the instance of 'thtml/' to a fully-qualified path.
 
             my $template = $self->load_tmpl(
                 '/var/www/pluma/thtml/' . $arg->{'container'} . '.thtml',
