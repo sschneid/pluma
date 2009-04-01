@@ -100,6 +100,8 @@ sub setup {
 
         create
         delete
+        disable
+        enable
         password
         search
     / ] );
@@ -361,7 +363,7 @@ sub displayUser {
     my $user = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.User'},
         filter => 'uid=' . $self->{'arg'}->{'user'},
-        attrs  => [ '*' ]
+        attrs  => [ '*', 'nsAccountLock' ]
     )
     || return( $self->search( search => $self->{'arg'}->{'user'} ) );
 
@@ -497,6 +499,18 @@ sub displayUser {
        );
     }
 
+    $user->{'disable'} = $self->{'util'}->wrap(
+        container => 'user' . ( $user->{'nsAccountLock'} ? 'Enable' : 'Disable' ),
+        %{$user}
+    );
+
+    if ( $user->{'nsAccountLock'} ) {
+        $user->{'error'} = $self->{'util'}->wrap(
+            container => 'error',
+            error     => 'This account has been disabled.'
+        )
+    }
+
     # Render
     if ( $self->{'config'}->{'user.POSIX'} ) {
         return( $self->{'util'}->wrapAll( container => 'user', %{$user} ) );
@@ -625,7 +639,7 @@ sub modUser {
                             what   => 'u:' . $self->{'arg'}->{'user'},
                             item   => 'host',
                             object => $obj,
-                            action => $action,
+                            action => $action
                         ) if $self->{'audit'};
                     };
 
@@ -944,6 +958,42 @@ sub delete {
     }
 
     return( $self->displaySearch() );
+}
+
+sub disable {
+    my $self = shift;
+
+    return( $self->displayUser() ) unless $self->{'arg'}->{'dn'};
+
+    $self->{'ldap'}->modify(
+        $self->{'arg'}->{'dn'},
+        add => { 'nsAccountLock' => 'true' }
+    );
+
+    $self->{'util'}->log(
+        what   => 'u:' . $self->{'arg'}->{'user'},
+        action => 'disable'
+    ) if $self->{'audit'};
+
+    return( $self->displayUser() );
+}
+
+sub enable {
+    my $self = shift;
+
+    return( $self->displayUser() ) unless $self->{'arg'}->{'dn'};
+
+    $self->{'ldap'}->modify(
+        $self->{'arg'}->{'dn'},
+        delete => { 'nsAccountLock' => 'true' }
+    );
+
+    $self->{'util'}->log(
+        what   => 'u:' . $self->{'arg'}->{'user'},
+        action => 'enable'
+    ) if $self->{'audit'};
+
+    return( $self->displayUser() );
 }
 
 sub password {
