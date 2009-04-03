@@ -159,6 +159,11 @@ scope of this installation document.
             AddHandler cgi-script .cgi
             DirectoryIndex index.cgi
 
+            <Files ~ "\.(cfg|pm)$">
+                Order allow,deny
+                Deny from all
+            </Files>
+
             AuthType Basic
             AuthName "pluma"
 
