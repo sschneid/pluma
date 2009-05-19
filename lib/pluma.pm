@@ -345,13 +345,17 @@ sub displayGroup {
 
     $group->{'members'} = '<table>';
 
+    if ( $self->{'config'}->{'group.POSIX'} ) { 
+        $group->{'cntr'} = 'resultsItem';
+    }
+
     my $c = 0;
     foreach my $i ( sort keys %{$member} ) {
         if ( $i =~ /uid=(\w+)\,/ ) {
             my $user = $1;
 
             $group->{'members'} .= $self->{'util'}->wrap(
-                container => 'resultsItemExt',
+                container => $group->{'cntr'} || 'resultsItemExt',
                 eo        => sub {
                     if ( $c % 2 ) { return( 'odd' ); } else { return( 'even' ); }
                 },
