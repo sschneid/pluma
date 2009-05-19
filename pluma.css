@@ -39,7 +39,7 @@ h2 {
     margin-bottom:      17px;
     font-size:          14px;
     font-weight:        bold;
-    border-bottom:      solid 1px #bfbf60;
+    border-bottom:      solid 1px #b08b8b;
 }
 
 .objectItem .attr {
@@ -73,13 +73,17 @@ td, tr {
 #divider {
     margin-top:         5px;
     margin-bottom:      20px;
-    border-bottom:      solid 1px #bfbf60;
+    border-bottom:      solid 1px #b08b8b;
 }
 
 input, select, option { font-size: 12px; }
 select                { color: #666; }
 
 #content              { margin-left: 10px; }
+
+.resultsRow-odd {
+    background:         #f0f5ff;
+}
 
 .resultsItem {
     margin:             8px 0px 5px 0px;
@@ -109,4 +113,18 @@ img {
     width:              100px;
     float:              left;
 }
+
+.resultsTable {
+    margin: 0px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 0px;
+    padding-right: 25px;
+}
+
+td a {
+    text-decoration:    none;
+    color:              #666;
+}
+
 
