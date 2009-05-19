@@ -261,14 +261,24 @@ sub displayGroup {
         if ( $primary ) {
             if ( $primary->{'uid'} ) { $primary = { p => $primary } };
 
-            foreach ( sort keys %{$primary} ) {
+            $group->{'primary'} = '<table>';
+
+            my $c = 0;
+            foreach my $i ( sort keys %{$primary} ) {
                 $group->{'primary'} .= $self->{'util'}->wrap(
                     container => 'resultsItem',
-                    item      => $primary->{$_}->{'uid'},
-                    itemDesc  => $primary->{$_}->{'cn'} || '?',
-                    itemType  => 'user'
+                    eo        => sub {
+                        if ( $c % 2 ) { return( 'odd' ); } else { return( 'even' ); }
+                    },
+                    item      => $primary->{$i}->{'uid'},
+                    itemType  => 'user',
+                    itemDesc  => $primary->{$i}->{'cn'} || '?',
                 );
+
+                $c++;
             }
+
+            $group->{'primary'} .= '</table>';
         }
         else {
             $group->{'primary'} = $self->{'util'}->wrap(
@@ -306,7 +316,7 @@ sub displayGroup {
     my $member = $self->{'ldap'}->fetch(
         base   => $self->{'config'}->{'ldap.Base.User'},
         filter => $filter,
-        attrs  => [ 'cn' ]
+        attrs  => [ 'cn', 'mail', 'nsAccountLock' ]
     );
 
     unless ( $member ) {
@@ -333,18 +343,32 @@ sub displayGroup {
         };
     }
 
-    foreach ( sort keys %{$member} ) {
-        if ( /uid=(\w+)\,/ ) {
+    $group->{'members'} = '<table>';
+
+    my $c = 0;
+    foreach my $i ( sort keys %{$member} ) {
+        if ( $i =~ /uid=(\w+)\,/ ) {
             my $user = $1;
 
             $group->{'members'} .= $self->{'util'}->wrap(
-                container => 'resultsItem',
+                container => 'resultsItemExt',
+                eo        => sub {
+                    if ( $c % 2 ) { return( 'odd' ); } else { return( 'even' ); }
+                },
                 item      => $user,
-                itemDesc  => $member->{$_}->{'cn'} || '?',
-                itemType  => 'user'
+                itemType  => 'user',
+                itemDesc  => $member->{$i}->{'cn'} || '?',
+                itemDesc2 => $member->{$i}->{'mail'},
+                itemDesc3 => sub {
+                    return( 'Disabled') if $member->{$i}->{'nsAccountLock'};
+                }
             );
+
+            $c++;
         }
     }
+
+    $group->{'members'} .= '</table>';
 
     # Render
     if ( $self->{'config'}->{'group.POSIX'} ) {
@@ -1034,8 +1058,6 @@ sub search {
         $self->{'arg'}->{'search'} ||= $arg->{'search'};
     }
 
-    $self->{'arg'}->{'search'} = '' if $self->{'arg'}->{'search'} eq '*';
-
     my ( $base );
     if ( !$self->{'arg'}->{'base'} || $self->{'arg'}->{'base'} eq '' ) {
         $base = undef;
@@ -1044,21 +1066,39 @@ sub search {
         $base = $self->{'arg'}->{'base'};
     }
 
-    my $user = $self->{'ldap'}->fetch(
-        base   => $base || $self->{'config'}->{'ldap.Base.User'},
-        filter =>
-            '(| (uid=' . $self->{'arg'}->{'search'} . '*)'
-             . '(givenName=' . $self->{'arg'}->{'search'} . '*)'
-             . '(sn=' . $self->{'arg'}->{'search'} . '*) )',
-        attrs  => [ '*' ]
-    ) || {};
-    my $group = $self->{'ldap'}->fetch(
-        base   => $base || $self->{'config'}->{'ldap.Base.Group'},
-        filter =>
-            '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
-             . '(cn=' . $self->{'arg'}->{'search'} . '*) )',
-        attrs  => [ '*' ]
-    ) || {};
+    my ( $user, $group );
+
+    if ( $self->{'arg'}->{'search'} eq '*' ) {
+        $user = $self->{'ldap'}->fetch(
+            base   => $base || $self->{'config'}->{'ldap.Base.User'},
+            filter => '(uid=*)',
+            attrs  => [ '*', 'nsAccountLock' ]
+        ) || {};
+        $group = $self->{'ldap'}->fetch(
+            base   => $base || $self->{'config'}->{'ldap.Base.Group'},
+            filter =>
+                '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+                 . '(cn=*) )',
+            attrs  => [ '*' ]
+        ) || {};
+    }
+    else {
+        $user = $self->{'ldap'}->fetch(
+            base   => $base || $self->{'config'}->{'ldap.Base.User'},
+            filter =>
+                '(| (uid=*' . $self->{'arg'}->{'search'} . '*)'
+                 . '(mail=*' . $self->{'arg'}->{'search'} . '*)'
+                 . '(cn=*' . $self->{'arg'}->{'search'} . '*) )',
+            attrs  => [ '*', 'nsAccountLock' ]
+        ) || {};
+        $group = $self->{'ldap'}->fetch(
+            base   => $base || $self->{'config'}->{'ldap.Base.Group'},
+            filter =>
+                '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+                 . '(cn=*' . $self->{'arg'}->{'search'} . '*) )',
+            attrs  => [ '*' ]
+        ) || {};
+    }
 
     $user  = { 'u' => $user }  if $user->{'uid'};
     $group = { 'g' => $group } if $group->{'cn'};
@@ -1074,21 +1114,35 @@ sub search {
     # Return a list
     return( $self->{'util'}->wrapAll(
         container => 'results',
-        search    => $self->{'arg'}->{'search'} || '*',
+        search    => $self->{'arg'}->{'search'},
         results   => sub {
             my ( $results );
 
-            foreach ( sort keys %{$search} ) {
-                my $type = $search->{$_}->{'uid'} ? 'user' : 'group';
+            $results = '<table>';
+
+            my $c = 0;
+            foreach my $i ( sort keys %{$search} ) {
+                my $type = $search->{$i}->{'uid'} ? 'user' : 'group';
 
                 $results .= $self->{'util'}->wrap(
-                    container => 'resultsItem',
-                    item      => $search->{$_}->{'uid'} || $search->{$_}->{'cn'},
-                    itemDesc  => $search->{$_}->{'description'}
-                              || $search->{$_}->{'cn'} || '?',
-                    itemType  => $type
-                )
+                    container => 'resultsItemExt',
+                    eo        => sub {
+                        if ( $c % 2 ) { return( 'odd' ); } else { return( 'even' ); }
+                    },
+                    item      => $search->{$i}->{'uid'} || $search->{$i}->{'cn'},
+                    itemType  => $type,
+                    itemDesc  => $search->{$i}->{'description'}
+                              || $search->{$i}->{'cn'} || '?',
+                    itemDesc2 => $search->{$i}->{'mail'},
+                    itemDesc3 => sub {
+                        return( 'Disabled') if $search->{$i}->{'nsAccountLock'};
+                    }
+                );
+
+                $c++;
             }
+
+            $results .= '</table>';
 
             return( $results );
         },
