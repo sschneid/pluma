@@ -85,6 +85,11 @@ select                { color: #666; }
     background:         #f0f5ff;
 }
 
+.resultsRow-hover {
+    background:         #eee;
+    cursor:             pointer;
+}
+
 .resultsItem {
     margin:             8px 0px 5px 0px;
     color:              #666;
