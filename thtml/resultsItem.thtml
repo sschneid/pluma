@@ -1,7 +1,7 @@
 
-                    <div class="resultsItem">
-                        <div class="icon"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><img src="img/<!-- tmpl_var name="itemType" -->.png" alt="*" /></a></div>
-                        <div class="item"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="item" --></a></div>
-                        <div class="desc"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="itemDesc" --></a></div>
-                    </div>
+                    <tr class="resultsRow-<!-- tmpl_var name="eo" -->">
+                        <td class="resultsTable" width="16px"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><img src="img/<!-- tmpl_var name="itemType" -->.png" alt="*" /></a></td>
+                        <td class="resultsTable" width="100px"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="item" --></a></div></td>
+                        <td class="resultsTable"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="itemDesc" --></a></div></td>
+                    </tr>
 
