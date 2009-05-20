@@ -1,7 +1,7 @@
 
                     <tr class="resultsRow-<!-- tmpl_var name="eo" -->" onMouseOver="this.className='resultsRow-hover'" onMouseOut="this.className='resultsRow-<!-- tmpl_var name="eo" -->'" onClick="window.location.href='?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->';">
                         <td class="resultsTable" width="16px"><img src="img/<!-- tmpl_var name="itemType" -->.png" alt="*" /></td>
-                        <td class="resultsTable" width="100px"><!-- tmpl_var name="item" --></td>
+                        <td class="resultsTable" width="100px"><a href="?<!-- tmpl_var name="itemType" -->=<!-- tmpl_var name="item" -->"><!-- tmpl_var name="item" --></a></td>
                         <td class="resultsTable" width="200px"><!-- tmpl_var name="itemDesc" --></td>
                         <td class="resultsTable"><!-- tmpl_var name="itemDesc2" --></td>
                         <td class="resultsTable"><!-- tmpl_var name="itemDesc3" --></td>
