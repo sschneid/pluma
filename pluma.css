@@ -82,12 +82,21 @@ select                { color: #666; }
 #content              { margin-left: 10px; }
 
 .resultsRow-odd {
+    color:              #666;
     background:         #f0f5ff;
+}
+
+.resultsRow-even {
+    color:              #666;
 }
 
 .resultsRow-hover {
     background:         #eee;
     cursor:             pointer;
+}
+
+.resultsRow-hover a {
+    color:              #000;
 }
 
 .resultsItem {
