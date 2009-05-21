@@ -817,10 +817,10 @@ sub create {
                 $create->{'attr'}->{'loginShell'}
                     = $self->{'config'}->{'default.Shell'};
 
-                push @{$create->{'attr'}->{'objectClass'}}, [ qw/
+                push @{$create->{'attr'}->{'objectClass'}}, qw/
                     posixAccount
                     account
-                / ];
+                /;
             }
 
             if (
