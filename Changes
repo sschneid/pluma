@@ -1,5 +1,15 @@
 Revision history of pluma
 
+1.10
+* Thu May 21 2009 Scott Schneider <sschneid@gmail.com>
+- Improved search logic
+- Mail & disabled status displayed in search results set
+- Bug fixes:
+    - POSIX user creation objectClass
+- Style tweaks:
+    - Colorized even/odd rows
+    - Results set converted to tables rather than floated divs
+
 1.9
 * Mon Apr 06 2009 Scott Schneider <sschneid@gmail.com>
 - Support for moving users between bases
