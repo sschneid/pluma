@@ -1139,7 +1139,7 @@ sub search {
                               || $search->{$i}->{'cn'} || '?',
                     itemDesc2 => $search->{$i}->{'mail'},
                     itemDesc3 => sub {
-                        return( 'Disabled') if $search->{$i}->{'nsAccountLock'};
+                        return( 'Disabled' ) if $search->{$i}->{'nsAccountLock'} || '';
                     }
                 );
 
