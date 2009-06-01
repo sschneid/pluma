@@ -192,8 +192,10 @@ sub wrap {
     delete $arg->{'container'};
 
     map {
-        chomp( $arg->{$_} );
-        $template->param( $_ => $arg->{$_} );
+        if ( $arg->{$_} ) {
+            chomp( $arg->{$_} );
+            $template->param( $_ => $arg->{$_} );
+        }
     } keys %{$arg};
 
     return( $template->output() );
