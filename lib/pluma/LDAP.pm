@@ -167,6 +167,8 @@ sub getNextNum {
         attrs  => [ $arg->{'unit'} . 'Number' ]
     );
 
+    return( '100' ) unless $nums;
+
     $nums = { $nums->{$arg->{'unit'} . 'Number'} => $nums }
         if $nums->{$arg->{'unit'} . 'Number'};
 
