@@ -163,11 +163,11 @@ sub getNextNum {
 
     my $nums = $self->fetch(
         base   => $arg->{'base'},
-        filter => '(' . $arg->{'unit'} . 'Number>=100)',
+        filter => '(' . $arg->{'unit'} . 'Number=*)',
         attrs  => [ $arg->{'unit'} . 'Number' ]
     );
 
-    return( '100' ) unless $nums;
+    return( '101' ) unless $nums;
 
     $nums = { $nums->{$arg->{'unit'} . 'Number'} => $nums }
         if $nums->{$arg->{'unit'} . 'Number'};
@@ -179,11 +179,15 @@ sub getNextNum {
             $nums->{$a}->{$arg->{'unit'} . 'Number'} <=>
             $nums->{$b}->{$arg->{'unit'} . 'Number'}
         } keys %{$nums}
-                                                        ) {
+    ) {
+        next if $nums->{$_}->{$arg->{'unit'} . 'Number'} < 100;
+
         push @n, $nums->{$_}->{$arg->{'unit'} . 'Number'};
     }
 
     @n = sort { $b <=> $a } @n;
+
+    return( '101') if $n[0] < 100;
 
     return( ++$n[0] );
 }
