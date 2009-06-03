@@ -142,7 +142,7 @@ of pluma's application directory.
 
 
 2. Apache set-up
-----------------
+--------------------
 
 Web set-up should be relatively simple.  Full Apache set-up is outside of the
 scope of this installation document.
