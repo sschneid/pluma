@@ -1,0 +1,50 @@
+pluma readme & notes
+
+
+1. Requirements
+-------------------
+
+pluma requires the following perl modules (and their dependencies) for basic
+operations:
+
+    - CGI::Application
+    - MIME::Lite
+    - Net::LDAP
+
+All modules can be installed from CPAN.
+
+
+
+2. OpenLDAP considerations
+------------------------------
+
+pluma was written and tested against Fedora Directory Server (now "389").
+That said, it will work fine with OpenLDAP, with a few exceptions:
+
+* RFC2307bis schema is required for POSIX group support
+
+    - posixGroup is marked as AUXILIARY instead of STRUCTURAL, allowing both
+      posixGroup and groupOfUniqueNames object classes to be set (in turn,
+      allowing both gidNumber and uniqueMember attributes to be allowed in
+      a group object).
+
+* Host attributes are now allowed
+
+    - Disable via $user.POSIX.Hosts
+
+    - Example:
+    
+        $user.POSIX.Hosts: "0"
+
+    - Both account and posixAccount are STRUCTURAL, disallowing the 'host'
+      attribute to be set on a user object.  This is not fixed with RFC2307bis,
+      though a manual schema modification to set either posixAccount or account
+      as AUXILIARY will fix this.
+
+* Disabling of users is not supported
+
+    - Hopefully this will change in a future release.
+
+Thanks to Peter McNabb <peter@mcnabbs.org> for help and patching to enable
+OpenLDAP support!
+
