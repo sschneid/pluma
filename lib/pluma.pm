@@ -824,10 +824,13 @@ sub create {
                 $create->{'attr'}->{'loginShell'}
                     = $self->{'config'}->{'default.Shell'};
 
-                foreach my $attr ( qw/ posixAccount account / ) {
-                    push @{$create->{'attr'}->{'objectClass'}}, $attr
-                        unless grep { $_ eq $attr } @{$self->{'config'}->{'user.objectClass'}};
-                }
+                push @{$create->{'attr'}->{'objectClass'}}, 'posixAccount'
+                    unless grep {
+                        $_ eq 'posixAccount'
+                    } @{$self->{'config'}->{'user.objectClass'}};
+
+                push @{$create->{'attr'}->{'objectClass'}}, 'account'
+                    unless ( $self->{'config'}->{'user.POSIX.Hosts'} eq '0' );
             }
 
             if (
