@@ -411,39 +411,46 @@ sub displayUser {
             -default => $user->{'loginShell'}
         );
 
-        # Hosts
-        my ( $host );
-        if ( $user->{'host'} ) {
-            $user->{'host'} = [ $user->{'host'} ] unless ref $user->{'host'};
-            foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
-            delete $user->{'host'};
-        }
-
-        my $hosts = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.Host'},
-            filter => 'objectClass=ipHost',
-            attrs  => [ 'cn' ]
-        );
-
-        if ( $hosts ) {
-            $hosts = { $hosts->{'cn'} => $hosts } if $hosts->{'cn'};
-
-            foreach ( keys %{$hosts} ) {
-                $_ =~ s/cn\=(.+?)\,.*/$1/g;
-                $host->{0}->{$_} = 1 unless $host->{1}->{$_};
+        unless ( $self->{'config'}->{'user.POSIX.Hosts'} eq '0' ) {
+            # Hosts
+            my ( $host );
+            if ( $user->{'host'} ) {
+                $user->{'host'} = [ $user->{'host'} ] unless ref $user->{'host'};
+                foreach ( @{$user->{'host'}} ) { $host->{1}->{$_} = 1; }
+                delete $user->{'host'};
             }
+
+            my $hosts = $self->{'ldap'}->fetch(
+                base   => $self->{'config'}->{'ldap.Base.Host'},
+                filter => 'objectClass=ipHost',
+                attrs  => [ 'cn' ]
+            );
+
+            if ( $hosts ) {
+                $hosts = { $hosts->{'cn'} => $hosts } if $hosts->{'cn'};
+
+                foreach ( keys %{$hosts} ) {
+                    $_ =~ s/cn\=(.+?)\,.*/$1/g;
+                    $host->{0}->{$_} = 1 unless $host->{1}->{$_};
+                }
+            }
+
+            $user->{'availHosts'} = $self->{'cgi'}->scrolling_list(
+                -name => 'availHosts', -values => [ sort keys %{$host->{0}} ],
+                -size => 7,            -class  => 'selectBox'
+            );
+            $user->{'userHosts'}  = $self->{'cgi'}->scrolling_list(
+                -name => 'userHosts',  -values => [ sort keys %{$host->{1}} ],
+                -size => 7,            -class  => 'selectBox'
+            );
+
+            $user->{'cHosts'} = join( ',', sort keys %{$host->{1}} );
+
+            $user->{'hosts'} = $self->{'util'}->wrap(
+                container => 'userHosts',
+                %{$user}
+            );
         }
-
-        $user->{'availHosts'} = $self->{'cgi'}->scrolling_list(
-            -name => 'availHosts', -values => [ sort keys %{$host->{0}} ],
-            -size => 7,            -class  => 'selectBox'
-        );
-        $user->{'userHosts'}  = $self->{'cgi'}->scrolling_list(
-            -name => 'userHosts',  -values => [ sort keys %{$host->{1}} ],
-            -size => 7,            -class  => 'selectBox'
-        );
-
-        $user->{'cHosts'} = join( ',', sort keys %{$host->{1}} );
     }
 
     # Groups

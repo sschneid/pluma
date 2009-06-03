@@ -64,27 +64,7 @@
 
             <br />
 
-            <table>
-              <tr>
-                <td width="45%">
-                  <div class="objectTitle">Available hosts:</div>
-                  <!-- tmpl_var name="availHosts" -->
-                </td>
-                <td width="10%">
-                  <center>
-                    <input type="hidden" name="userHosts_values" value="" />
-                    <input type="button" name="server_add" class="button" value="&gt;&gt;" onclick="selectItem(&#39;availHosts&#39;, &#39;userHosts&#39;)" ondblclick="selectItem('availHosts', 'userHosts')" /><br />
-                   <input type="button" name="server_del" class="button" value="&lt;&lt;" onclick="selectItem(&#39;availHosts&#39;, &#39;userHosts&#39;, 0)" ondblclick="selectItem('availHosts', 'userHosts', 0)" />
-                  </center>
-                </td>
-                <td width="45%">
-                  <div class="objectTitle">Hosts this user has access to:</div>
-                  <!-- tmpl_var name="userHosts" -->
-                </td>
-              </tr>
-            </table>
-
-            <br />
+            <!-- tmpl_var name="hosts" -->
 
             <table>
               <tr>
