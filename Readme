@@ -30,16 +30,17 @@ That said, it will work fine with OpenLDAP, with a few exceptions:
 
 * Host attributes are not allowed
 
-    - Disable via $user.POSIX.Hosts
+    - This causes a "LDAP error: invalid structural object class chain
+      (inetOrgPerson/account)" to be thrown during account creation.  Both
+      account and posixAccount are STRUCTURAL, disallowing the 'host' attribute
+      to be set on a user object.  This is not fixed with RFC2307bis, though a
+      manual schema modification to set either posixAccount or account as
+      AUXILIARY will fix this.  You can also disable hosts entirely via
+      $user.POSIX.Hosts.
 
     - Example:
     
         $user.POSIX.Hosts: "0"
-
-    - Both account and posixAccount are STRUCTURAL, disallowing the 'host'
-      attribute to be set on a user object.  This is not fixed with RFC2307bis,
-      though a manual schema modification to set either posixAccount or account
-      as AUXILIARY will fix this.
 
 * Disabling of users is not supported
 
