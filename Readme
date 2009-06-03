@@ -28,7 +28,7 @@ That said, it will work fine with OpenLDAP, with a few exceptions:
       allowing both gidNumber and uniqueMember attributes to be allowed in
       a group object).
 
-* Host attributes are now allowed
+* Host attributes are not allowed
 
     - Disable via $user.POSIX.Hosts
 
