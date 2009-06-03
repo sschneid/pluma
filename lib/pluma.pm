@@ -78,6 +78,10 @@ sub setup {
     $self->{'config'}->{'user.uniqueID'}     ||= 'uid';
     $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';
 
+    unless( defined( $self->{'config'}->{'user.POSIX.Hosts'} ) ) {
+        $self->{'config'}->{'user.POSIX.Hosts'} = '1';
+    }
+
     # Logging
     if ( $self->{'config'}->{'audit.log'} ) {
         if (
