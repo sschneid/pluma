@@ -942,7 +942,15 @@ sub create {
         };
     }
 
-    $self->{'ldap'}->add( $create->{'dn'}, attr => [ %{$create->{'attr'}} ] );
+    my $result =  $self->{'ldap'}->add(
+        $create->{'dn'}, attr => [ %{$create->{'attr'}} ]
+    );
+
+    if ( $result->code() ) {
+        return( $self->displayCreate(
+            error => 'LDAP error: ' . $result->error()
+          ) )
+    }
 
     for ( $self->{'arg'}->{'create'} ) {
         /user/  && return( $self->displayUser() );
