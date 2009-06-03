@@ -908,17 +908,22 @@ sub create {
             $create->{'attr'}->{'cn'}          = $self->{'arg'}->{'cn'};
             $create->{'attr'}->{'description'} = $self->{'arg'}->{'description'};
 
-            $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
-                base => $self->{'config'}->{'ldap.Base.Group'},
-                unit => 'gid'
-            );
-
             $create->{'attr'}->{'objectClass'} = [ qw/
                 top
-                posixGroup
-                groupOfNames
                 groupOfUniqueNames
             / ];
+
+            # Populate with a blank uniqueMember for OpenLDAP
+            $create->{'attr'}->{'uniqueMember'} = '';
+
+            if ( $self->{'config'}->{'user.POSIX'} ) {
+                push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup';
+
+                $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
+                    base => $self->{'config'}->{'ldap.Base.Group'},
+                    unit => 'gid'
+                );
+            }
 
             $self->{'util'}->log(
                 what   => 'g:' .  $self->{'arg'}->{'group'},
