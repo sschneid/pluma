@@ -923,11 +923,22 @@ sub create {
                 groupOfUniqueNames
             / ];
 
+            if ( $self->{'config'}->{'group.objectClass'} ) {
+                push @{$create->{'attr'}->{'objectClass'}},
+                    $self->{'config'}->{'group.objectClass'}
+                        unless grep {
+                            $_ eq $self->{'config'}->{'group.objectClass'}
+                        } @{$create->{'attr'}->{'objectClass'}};
+            }
+
             # Populate with a blank uniqueMember for OpenLDAP
             $create->{'attr'}->{'uniqueMember'} = '';
 
-            if ( $self->{'config'}->{'user.POSIX'} ) {
-                push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup';
+            if ( $self->{'config'}->{'group.POSIX'} ) {
+                push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup'
+                    unless grep {
+                        $_ eq 'posixGroup'
+                    } @{$create->{'attr'}->{'objectClass'}};
 
                 $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
                     base => $self->{'config'}->{'ldap.Base.Group'},
