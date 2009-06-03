@@ -511,7 +511,7 @@ sub displayUser {
 
         $user->{'bases'} = $self->{'cgi'}->popup_menu(
             -name    => 'base',
-            -class   => 'drpoBox',
+            -class   => 'dropBox',
             -values  => [ sort {
                             $labels->{$a} cmp $labels->{$b}
                         } keys %{$labels} ],
@@ -522,7 +522,7 @@ sub displayUser {
     else {
         $user->{'bases'} = $self->{'cgi'}->popup_menu(
             -name    => 'base',
-            -class   => 'drpoBox',
+            -class   => 'dropBox',
             -values  => [ 'Users' ]
        );
     }

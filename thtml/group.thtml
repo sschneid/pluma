@@ -39,7 +39,7 @@
             <table>
               <tr>
                 <td width="45%" valign="top">
-                  <div class="objectTitle">Member of this group:</div>
+                  <div class="objectTitle">Members of this group:</div>
                   <!-- tmpl_var name="members" -->
                 </td>
 
