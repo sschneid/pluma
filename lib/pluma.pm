@@ -712,6 +712,27 @@ sub modUser {
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
 
+            if ( $attr eq 'cn' ) {
+                my ( $chg );
+
+                $chg->{'sn'} = $self->{'arg'}->{'cn'};
+                $chg->{'sn'} =~ s/^.+?(\w+)$/$1/;
+
+                $chg->{'givenName'} = $self->{'arg'}->{'cn'};
+                $chg->{'givenName'} =~ s/^(\w+).+?$/$1/;
+
+                if ( $self->{'config'}->{'user.POSIX'} ) {
+                    $chg->{'gecos'} = $self->{'arg'}->{'cn'};
+                }
+
+                foreach ( keys %{$chg} ) {
+                    print Dumper $self->{'ldap'}->modify(
+                        $self->{'arg'}->{'dn'},
+                        replace => { $_ => $chg->{$_} }
+                    );
+                }
+            }
+
             $self->{'arg'}->{$attr . 'Was'} ||= 'null';
 
             $self->{'util'}->log(
