@@ -40,7 +40,7 @@ Revision history of pluma
     - Audit logging tweaks
 
 1.7
-* Thu Jan 29 2008 Scott Schneider <sschneid@gmail.com>
+* Thu Jan 29 2009 Scott Schneider <sschneid@gmail.com>
 - Support for multiple user base DNs
 - Support for user-defined objectClass inclusion of new users
 - Ability to list all directory objects (search criteria of '*')
@@ -51,7 +51,7 @@ Revision history of pluma
     - Audit log is created if it doesn't exist
 
 1.6
-* Thu Jan 22 2008 Scott Schneider <sschneid@gmail.com>
+* Thu Jan 22 2009 Scott Schneider <sschneid@gmail.com>
 - Configurable homeDirectory prefix and email address format
 - Bug fixes:
     - Attributes givenName and gecos weren't being populated for new users
@@ -59,7 +59,7 @@ Revision history of pluma
     - Fixed 'crypt' encryption method broken in 1.5
 
 1.5
-* Thu Jan 15 2008 Scott Schneider <sschneid@gmail.com>
+* Thu Jan 15 2009 Scott Schneider <sschneid@gmail.com>
 - Support for SHA and SSHA userPassword encryption
 - Surname (sn) added to user search path
 - Bug fixes:
