@@ -1,7 +1,7 @@
 Revision history of pluma
 
 1.11
-* Fri Jun 06 2009 Scott Schneider <sschneid@gmail.com>
+* Fri Jun 05 2009 Scott Schneider <sschneid@gmail.com>
 - OpenLDAP support
 - Configurable user.POSIX.Hosts host access display
 - Better error reporting during failed object creation
