@@ -716,10 +716,10 @@ sub modUser {
                 my ( $chg );
 
                 $chg->{'sn'} = $self->{'arg'}->{'cn'};
-                $chg->{'sn'} =~ s/^.+?(\w+)$/$1/;
+                $chg->{'sn'} =~ s/^.+?([a-zA-Z\-]+)$/$1/;
 
                 $chg->{'givenName'} = $self->{'arg'}->{'cn'};
-                $chg->{'givenName'} =~ s/^(\w+).+?$/$1/;
+                $chg->{'givenName'} =~ s/^([a-zA-Z\-]+).+?$/$1/;
 
                 if ( $self->{'config'}->{'user.POSIX'} ) {
                     $chg->{'gecos'} = $self->{'arg'}->{'cn'};
@@ -795,10 +795,10 @@ sub create {
             $create->{'attr'}->{'cn'} = $self->{'arg'}->{'cn'};
 
             $create->{'attr'}->{'sn'} = $create->{'attr'}->{'cn'};
-            $create->{'attr'}->{'sn'} =~ s/^.+?(\w+)$/$1/;
+            $create->{'attr'}->{'sn'} =~ s/^.+?([a-zA-Z\-]+)$/$1/;
 
             $create->{'attr'}->{'givenName'} = $create->{'attr'}->{'cn'};
-            $create->{'attr'}->{'givenName'} =~ s/^(\w+).+?$/$1/;
+            $create->{'attr'}->{'givenName'} =~ s/^([a-zA-Z\-]+).+?$/$1/;
 
             $create->{'attr'}->{'uid'} = $self->{'arg'}->{'uid'};
 
