@@ -766,6 +766,11 @@ sub create {
                 error => qq(Pleaes enter a username and name.)
             ) )
                 unless ( $self->{'arg'}->{'uid'} && $self->{'arg'}->{'cn'} );
+
+            return( $self->displayCreate(
+                error => qq(Usernames can contain only alphanumeric characters.)
+            ) )
+                unless ( $self->{'arg'}->{'uid'} =~ /^\w+$/ );
  
             # Check for existing uniqueID
             if ( $self->{'ldap'}->fetch(
