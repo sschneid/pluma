@@ -5,7 +5,7 @@
 
                 <form method="post" action="">
                     <input type="hidden" name="rm" value="search" />
-                    <input name="search" /> &nbsp;
+                    <input name="search" id="focus" /> &nbsp;
                     <!-- tmpl_var name="base" --> &nbsp;
                     <input type="submit" class="button" name="" value=" Search " />
                 </form>

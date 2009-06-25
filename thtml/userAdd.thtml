@@ -10,7 +10,7 @@
 
                 <div class="objectItem">
                     <div class="attr">Username (login):</div>
-                    <div class="valnochg"><input name="uid" onchange="formCopy()"/></div>
+                    <div class="valnochg"><input name="uid" onchange="formCopy()" id="focus" /></div>
                     <div class="attr">Full name:</div>
                     <div class="valnochg"><input name="cn" /></div>
 
