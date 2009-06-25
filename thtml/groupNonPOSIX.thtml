@@ -1,6 +1,4 @@
 
-        <script type="text/javascript" src="pluma.js"></script>
-
         <div id="mainTitle">Viewing group <!-- tmpl_var name="cn" --></div>
 
           <div id="content">

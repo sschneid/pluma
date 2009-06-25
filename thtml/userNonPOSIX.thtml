@@ -1,6 +1,4 @@
 
-        <script type="text/javascript" src="pluma.js"></script>
-
         <div id="mainTitle">Editing existing user <!-- tmpl_var name="uid" --></div>
 
           <div id="content">
