@@ -1,3 +1,7 @@
+function setFormFocus() {
+  document.getElementById('focus').focus();
+}
+
 function maintainValues(name) {
   var group = findFormObject(name);
   if(!group) return;
