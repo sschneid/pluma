@@ -726,7 +726,7 @@ sub modUser {
                 }
 
                 foreach ( keys %{$chg} ) {
-                    print Dumper $self->{'ldap'}->modify(
+                    $self->{'ldap'}->modify(
                         $self->{'arg'}->{'dn'},
                         replace => { $_ => $chg->{$_} }
                     );
