@@ -948,10 +948,9 @@ sub create {
             $create->{'attr'}->{'cn'}          = $self->{'arg'}->{'cn'};
             $create->{'attr'}->{'description'} = $self->{'arg'}->{'description'};
 
-            $create->{'attr'}->{'objectClass'} = [ qw/
-                top
-                groupOfUniqueNames
-            / ];
+            $create->{'attr'}->{'objectClass'} = [
+                'top', $self->{'config'}->{'group.objectClass'}
+            ];
 
             if ( $self->{'config'}->{'group.objectClass'} ) {
                 push @{$create->{'attr'}->{'objectClass'}},
