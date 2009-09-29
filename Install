@@ -98,6 +98,15 @@ of pluma's application directory.
 
         @shells: "/bin/bash /bin/ksh"
 
+* Adding custom LDAP attributes to the interface
+
+    - If specified, non-standard or custom LDAP attributes can be added to the
+      interface.
+
+    - Example:
+
+        @user.extraAttributes: "employeeNumber homePhone"
+
 * New user defaults
 
     - GID ($default.GID), loginShell ($default.Shell), mail format
