@@ -987,8 +987,23 @@ sub create {
     );
 
     if ( $result->code() ) {
+        my $error = $result->error();
+
+        for ( $error ) {
+            /No such object/ && do {
+                my ( $base );
+
+                for ( $self->{'arg'}->{'create'} ) {
+                    /user/  && do { $base = $self->{'config'}->{'ldap.Base.User'}; };
+                    /group/ && do { $base = $self->{'config'}->{'ldap.Base.Group'}; };
+                    
+                    $error .= qq( (could not find '$base') );
+                }
+            };
+        }
+
         return( $self->displayCreate(
-            error => 'LDAP error: ' . $result->error()
+            error => 'LDAP error: ' . $error
           ) )
     }
 
