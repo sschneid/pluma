@@ -156,7 +156,8 @@ of pluma's application directory.
 Web set-up should be relatively simple.  Full Apache set-up is outside of the
 scope of this installation document.
 
-* AuthLDAP is required for Apache set-up.
+* AuthLDAP is recommended for Apache set-up, as it allows you to use pluma itself
+  to control which users can access pluma.
 
     - Example:
 
