@@ -879,11 +879,6 @@ sub create {
                     digest => $self->{'config'}->{'pw.Encrypt'}
                 )
             }
-
-            $self->{'util'}->log(
-                what   => 'u:' .  $self->{'arg'}->{'user'},
-                action => 'create'
-            ) if $self->{'audit'};
         };
 
         /group/ && do {
@@ -942,11 +937,6 @@ sub create {
                     unit => 'gid'
                 );
             }
-
-            $self->{'util'}->log(
-                what   => 'g:' .  $self->{'arg'}->{'group'},
-                action => 'create'
-            ) if $self->{'audit'};
         };
     }
 
@@ -977,6 +967,11 @@ sub create {
 
     for ( $self->{'arg'}->{'create'} ) {
         /user/ && do {
+            $self->{'util'}->log(
+                what   => 'u:' .  $self->{'arg'}->{'user'},
+                action => 'create'
+            ) if $self->{'audit'};
+
             if (
                 $self->{'config'}->{'mail.WelcomeLetter'} &&
                 $self->{'arg'}->{'mail.WelcomeLetter'}
@@ -1012,7 +1007,14 @@ sub create {
             return( $self->displayUser() );
         };
 
-        /group/ && return( $self->displayGroup() );
+        /group/ && do {
+            $self->{'util'}->log(
+                what   => 'g:' .  $self->{'arg'}->{'group'},
+                action => 'create'
+            ) if $self->{'audit'};
+
+            return( $self->displayGroup() );
+        };
     }
 }
 
