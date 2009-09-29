@@ -880,38 +880,6 @@ sub create {
                 )
             }
 
-            if (
-                $self->{'config'}->{'mail.WelcomeLetter'} &&
-                $self->{'arg'}->{'mail.WelcomeLetter'}
-            ) {
-                my $message = $self->{'util'}->wrap(
-                    container => 'email',
-                    cn        => $self->{'arg'}->{'cn'},
-                    uid       => $self->{'arg'}->{'uid'},
-                    password  => $create->{'password'}
-                );
-
-                $self->{'config'}->{'mail.WelcomeLetter.from'} 
-                    ||= 'noreply';
-                $self->{'config'}->{'mail.WelcomeLetter.subject'}
-                    ||= 'A new account has been created for you!';
-
-                use MIME::Lite;
-
-                {
-                    local $ENV{'PATH'} = '';
-
-                    my $email = MIME::Lite->new(
-                        From    => $self->{'config'}->{'mail.WelcomeLetter.from'},
-                        To      => $create->{'attr'}->{'mail'},
-                        Subject => $self->{'config'}->{'mail.WelcomeLetter.subject'},
-                        Data    => $message 
-                    );
-
-                    $email->send();
-                }
-            }
-
             $self->{'util'}->log(
                 what   => 'u:' .  $self->{'arg'}->{'user'},
                 action => 'create'
@@ -1008,7 +976,42 @@ sub create {
     }
 
     for ( $self->{'arg'}->{'create'} ) {
-        /user/  && return( $self->displayUser() );
+        /user/ && do {
+            if (
+                $self->{'config'}->{'mail.WelcomeLetter'} &&
+                $self->{'arg'}->{'mail.WelcomeLetter'}
+            ) {
+                my $message = $self->{'util'}->wrap(
+                    container => 'email',
+                    cn        => $self->{'arg'}->{'cn'},
+                    uid       => $self->{'arg'}->{'uid'},
+                    password  => $create->{'password'}
+                );
+
+                $self->{'config'}->{'mail.WelcomeLetter.from'} 
+                    ||= 'noreply';
+                $self->{'config'}->{'mail.WelcomeLetter.subject'}
+                    ||= 'A new account has been created for you!';
+
+                use MIME::Lite;
+
+                {
+                    local $ENV{'PATH'} = '';
+
+                    my $email = MIME::Lite->new(
+                        From    => $self->{'config'}->{'mail.WelcomeLetter.from'},
+                        To      => $create->{'attr'}->{'mail'},
+                        Subject => $self->{'config'}->{'mail.WelcomeLetter.subject'},
+                        Data    => $message 
+                    );
+
+                    $email->send();
+                }
+            }
+
+            return( $self->displayUser() );
+        };
+
         /group/ && return( $self->displayGroup() );
     }
 }
