@@ -23,9 +23,9 @@ use warnings;
 sub setup {
     my $self = shift;
 
+    # Load pluma::Util and read system configuration from pluma.cfg
     $self->{'util'} = pluma::Util->new();
 
-    # Read configuration from pluma.cfg
     $self->{'config'} = $self->{'util'}->readConfig( configFile => 'pluma.cfg' )
     || die qq(Error reading configuration file pluma.cfg\n);
 
@@ -551,6 +551,23 @@ sub displayUser {
         )
     }
 
+    # Extra attributes
+    if ( $self->{'config'}->{'user.extraAttributes'} ) {
+        unless ( ref $self->{'config'}->{'user.extraAttributes'} ) {
+            $self->{'config'}->{'user.extraAttributes'} =
+                [ $self->{'config'}->{'user.extraAttributes'} ];
+        }
+
+        while ( @{$self->{'config'}->{'user.extraAttributes'}} ) {
+            my $attribute = shift @{$self->{'config'}->{'user.extraAttributes'}};
+            $user->{'extra'} .= $self->{'util'}->wrap(
+                container => 'userExtra',
+                attribute => $attribute,
+                value     => $user->{$attribute} || ''
+            );
+        }
+    }
+
     # Render
     if ( $self->{'config'}->{'user.POSIX'} ) {
         return( $self->{'util'}->wrapAll( container => 'user', %{$user} ) );
@@ -704,17 +721,27 @@ sub modUser {
         }
     }
 
-    foreach my $attr ( qw/ cn gidNumber homeDirectory loginShell mail uidNumber / ) {
+    my ( @attributes );
+    
+    @attributes = qw/ cn gidNumber homeDirectory loginShell mail uidNumber /;
+
+    # Extra attributes
+    if ( $self->{'config'}->{'user.extraAttributes'} ) {
+        unless ( ref $self->{'config'}->{'user.extraAttributes'} ) {
+            $self->{'config'}->{'user.extraAttributes'} =
+                [ $self->{'config'}->{'user.extraAttributes'} ];
+        }
+
+        push @attributes, @{$self->{'config'}->{'user.extraAttributes'}};
+    }
+    foreach my $attr ( @attributes ) {
         next unless $self->{'arg'}->{$attr};
 
         unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
-            $self->{'ldap'}->modify(
-                $self->{'arg'}->{'dn'},
-                replace => { $attr => $self->{'arg'}->{$attr} }
-            );
-
             if ( $attr eq 'cn' ) {
                 my ( $chg );
+
+                $chg->{'cn'} = $self->{'arg'}->{'cn'};
 
                 $chg->{'sn'} = $self->{'arg'}->{'cn'};
                 $chg->{'sn'} =~ s/^.+?([a-zA-Z\-]+)$/$1/;
@@ -732,6 +759,18 @@ sub modUser {
                         replace => { $_ => $chg->{$_} }
                     );
                 }
+            }
+            else {
+                my ( $action );
+
+                $self->{'arg'}->{$attr . 'Was'} eq ''
+                    ? $action = 'add'
+                    : $action = 'replace';
+
+                $self->{'ldap'}->modify(
+                    $self->{'arg'}->{'dn'},
+                    $action => { $attr => $self->{'arg'}->{$attr} }
+                );
             }
 
             $self->{'arg'}->{$attr . 'Was'} ||= 'null';
