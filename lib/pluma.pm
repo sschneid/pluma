@@ -121,6 +121,7 @@ sub teardown {
     my $self = shift;
 
     $self->{'util'}->logClose() if $self->{'audit'};
+    $self->{'ldap'}->disconnect();
 }
 
 sub displaySearch {
