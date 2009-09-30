@@ -206,7 +206,7 @@ sub displayCreate {
             letter     => sub {
                 if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
                     return( $self->{'util'}->wrap(
-                        container => $self->{'config'}->{'mail.WelcomeLetter.template'}
+                        container => 'selectWelcomeLetter'
                     ) );
                 }
                 else {
@@ -222,7 +222,7 @@ sub displayCreate {
             letter     => sub {
                 if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
                     return( $self->{'util'}->wrap(
-                        container => $self->{'config'}->{'mail.WelcomeLetter.template'}
+                        container => 'selectWelcomeLetter'
                     ) );
                 }
                 else {
@@ -906,7 +906,7 @@ sub create {
                 $self->{'arg'}->{'mail.WelcomeLetter'}
             ) {
                 my $message = $self->{'util'}->wrap(
-                    container => 'email',
+                    container => $self->{'config'}->{'mail.WelcomeLetter.template'},
                     cn        => $self->{'arg'}->{'cn'},
                     uid       => $self->{'arg'}->{'uid'},
                     password  => $create->{'password'}
