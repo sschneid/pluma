@@ -111,7 +111,7 @@
                     <input type="hidden" name="rm" value="delete" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
                     <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
-                    <input type="submit" class="button" name="" value=" Delete this user " onclick="return delUserConfirm()" />
+                    <input type="submit" class="button" name="" value=" Delete " onclick="return delUserConfirm()" />
                   </form>
                 </td>
               </tr>

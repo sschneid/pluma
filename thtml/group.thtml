@@ -71,7 +71,7 @@
                   <form method="post" action="">
                     <input type="hidden" name="rm" value="delete" />
                     <input type="hidden" name="group" value="<!-- tmpl_var name="cn" -->" />
-                    <input type="submit" class="button" name="" value=" Delete this group " onclick="return delGroupConfirm()" />
+                    <input type="submit" class="button" name="" value=" Delete " onclick="return delGroupConfirm()" />
                   </form>
                 </td>
               </tr>
