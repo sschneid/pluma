@@ -83,7 +83,7 @@
                 </td>
                 <!-- tmpl_var name="rename" -->
                 <!-- tmpl_var name="disable" -->
-                <!-- tmpl_var name="deleete" -->
+                <!-- tmpl_var name="delete" -->
               </tr>
             </table>
 
