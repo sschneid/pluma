@@ -1180,6 +1180,13 @@ sub rename {
         newuser => $self->{'arg'}->{'newuser'}
     );
 
+    $self->{'util'}->log(
+        what   => 'u:' . $self->{'arg'}->{'newuser'},
+        item   => 'user',
+        object => '(was ' . $self->{'arg'}->{'user'} . ')',
+        action => 'move'
+    ) if $self->{'audit'};
+ 
     $self->{'arg'}->{'user'} = $self->{'arg'}->{'newuser'};
 
     return( $self->displayUser() );
