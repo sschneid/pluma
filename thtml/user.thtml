@@ -49,7 +49,8 @@
                 <td width="10%"><div class="attr">Login shell:</div></td>
                 <td width="35%"><div class="valnochg"><!-- tmpl_var name="shells" --></div></td>
               </tr>
-               <tr>
+              <!-- tmpl_var name="extra" -->
+              <tr>
                 <td width="10%"><div class="attr">Org unit:</div></td>
                 <td width="35%"><div class="valnochg"><!-- tmpl_var name="bases" --></div></td>
 
