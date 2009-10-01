@@ -567,7 +567,14 @@ sub displayUser {
         $user->{'error'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'This account has been disabled.'
-        )
+        );
+    }
+
+    if ( $self->{'arg'}->{'error'} ) {
+        $user->{'error'} .= $self->{'util'}->wrap(
+            container => 'error',
+            error     => $self->{'arg'}->{'error'}
+        );
     }
 
     # Extra attributes
@@ -1174,11 +1181,17 @@ sub rename {
     my $self = shift;
 
     # Move the user
-    $self->{'ldap'}->move(
-        dn      => $self->{'arg'}->{'dn'},
-        base    => $self->{'arg'}->{'base'},
-        newuser => $self->{'arg'}->{'newuser'}
-    );
+    unless (
+        $self->{'ldap'}->move(
+            dn      => $self->{'arg'}->{'dn'},
+            base    => $self->{'arg'}->{'base'},
+            newuser => $self->{'arg'}->{'newuser'}
+        )
+    ) {
+        $self->{'arg'}->{'error'} = 'The specified username already exists.';
+
+        return( $self->displayUser() );
+    }
 
     $self->{'util'}->log(
         what   => 'u:' . $self->{'arg'}->{'newuser'},

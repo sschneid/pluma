@@ -140,6 +140,15 @@ sub move {
 
     if ( $arg->{'newuser'} ) {
         $key =~ s/^(.*)\=.*$/$1=$arg->{'newuser'}/g;
+
+        my $existing = $self->fetch(
+            base   => $base,
+            filter => $key,
+            attrs  => [ '*' ]
+        );
+
+        if ( $existing ) { return( 0 ); }
+
         $obj->{'uid'} = $arg->{'newuser'};
     }
 
