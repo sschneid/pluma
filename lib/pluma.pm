@@ -540,6 +540,7 @@ sub displayUser {
        );
     }
 
+    # Enable/disable button
     $user->{'disable'} = $self->{'util'}->wrap(
         container => 'user' . ( $user->{'nsAccountLock'} ? 'Enable' : 'Disable' ),
         %{$user}
@@ -550,6 +551,14 @@ sub displayUser {
             container => 'error',
             error     => 'This account has been disabled.'
         )
+    }
+
+    # Rename button
+    if ( $self->{'config'}->{'user.allowRename'} eq '1' ) {
+        $user->{'rename'} = $self->{'util'}->wrap(
+            container => 'userRename',
+            %{$user}
+        );
     }
 
     # Extra attributes
