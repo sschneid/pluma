@@ -29,6 +29,11 @@ sub new {
     )
     || return( 0 );
 
+    $self->{'util'} = pluma::Util->new();
+    
+    $self->{'config'} = $self->{'util'}->readConfig( configFile => 'pluma.cfg' )
+        || die qq(Error reading configuration file pluma.cfg\n);
+
     return( $self );
 }
 
@@ -148,6 +153,27 @@ sub move {
     }
 
     $self->add( $dn, attr => [ %{$obj} ] );
+
+    # Fix group membership
+    my $group = $self->fetch(
+        base   => $self->{'config'}->{'ldap.Base.Group'},
+        filter => 'uniqueMember=' . $arg->{'dn'},
+        attrs  => [ 'cn' ]
+    );
+
+    if ( $group ) {
+        $group = { 'g' => $group } if $group->{'cn'};
+
+        foreach my $g ( keys %{$group} ) {
+            $self->modify(
+                'cn=' . $group->{$g}->{'cn'} . ','
+                      . $self->{'config'}->{'ldap.Base.Group'},
+                add    => { 'uniqueMember' => $dn },
+                delete => { 'uniqueMember' => $arg->{'dn'} }
+            );
+        }
+    }
+
     $self->delete( $arg->{'dn'} );
 
     return( 1 );

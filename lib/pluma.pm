@@ -637,28 +637,6 @@ sub modUser {
             base  => $self->{'arg'}->{'base'}
         );
 
-        # Fix group membership
-        my $group = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.Group'},
-            filter => 'uniqueMember=' . $self->{'arg'}->{'dn'},
-            attrs  => [ 'cn' ]
-        );
-
-        if ( $group ) {
-            $group = { 'g' => $group } if $group->{'cn'};
-
-            foreach my $g ( keys %{$group} ) {
-                $self->{'ldap'}->modify(
-                    'cn=' . $group->{$g}->{'cn'} . ','
-                          . $self->{'config'}->{'ldap.Base.Group'},
-                    add    => { 'uniqueMember' => 'uid='
-                                  . $self->{'arg'}->{'user'}
-                                  . ',' . $self->{'arg'}->{'base'} },
-                    delete => { 'uniqueMember' => $self->{'arg'}->{'dn'} }
-                );
-            }
-        }
-
         $self->{'arg'}->{'dn'} =
             'uid=' . $self->{'arg'}->{'user'} . ',' . $self->{'arg'}->{'base'};
     }
@@ -1201,31 +1179,6 @@ sub rename {
         base    => $self->{'arg'}->{'base'},
         newuser => $self->{'arg'}->{'newuser'}
     );
-
-    # Fix group membership
-    my $group = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.Group'},
-        filter => 'uniqueMember=' . $self->{'arg'}->{'dn'},
-        attrs  => [ 'cn' ]
-    );
-
-    if ( $group ) {
-        $group = { 'g' => $group } if $group->{'cn'};
-
-        foreach my $g ( keys %{$group} ) {
-            $self->{'ldap'}->modify(
-                'cn=' . $group->{$g}->{'cn'} . ','
-                      . $self->{'config'}->{'ldap.Base.Group'},
-                add    => { 'uniqueMember' => 'uid='
-                              . $self->{'arg'}->{'newuser'}
-                              . ',' . $self->{'arg'}->{'base'} },
-                delete => { 'uniqueMember' => $self->{'arg'}->{'dn'} }
-            );
-        }
-    }
-
-    $self->{'arg'}->{'dn'} =
-       'uid=' . $self->{'arg'}->{'newuser'} . ',' . $self->{'arg'}->{'base'};
 
     $self->{'arg'}->{'user'} = $self->{'arg'}->{'newuser'};
 
