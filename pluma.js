@@ -96,6 +96,18 @@ function chgConfirm() {
   return confirm("Changing a group's GID can result in orphaned default user groups.  Are you sure you wish to continue?");
 }
 
+function renameUser() {
+  newuser = prompt("Please enter a new username");
+
+  if (newuser != null && newuser != "") {
+    document.getElementById("newuser").value=newuser;
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 function validatePwd() {
   var invalid = " ";
   var minLength = 6;
