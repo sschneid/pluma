@@ -540,25 +540,34 @@ sub displayUser {
        );
     }
 
-    # Enable/disable button
-    $user->{'disable'} = $self->{'util'}->wrap(
-        container => 'user' . ( $user->{'nsAccountLock'} ? 'Enable' : 'Disable' ),
-        %{$user}
-    );
+    # Rename, enable/disable, & delete buttons
+    foreach my $function ( qw/ Rename Disable Delete / ) {
+        if ( $self->{'config'}->{'user.allow' . $function} eq '1' ) {
+            my ( $container );
+
+            if ( $function eq 'Disable' ) {
+                $container = 'user' . (
+                    $user->{'nsAccountLock'}
+                        ? 'Enable'
+                        : 'Disable'
+                );
+            }
+            else {
+                $container = 'user' . $function;
+            }
+
+            $user->{lc($function)} = $self->{'util'}->wrap(
+                container => $container,
+                %{$user}
+            );
+        }
+    }
 
     if ( $user->{'nsAccountLock'} ) {
         $user->{'error'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'This account has been disabled.'
         )
-    }
-
-    # Rename button
-    if ( $self->{'config'}->{'user.allowRename'} eq '1' ) {
-        $user->{'rename'} = $self->{'util'}->wrap(
-            container => 'userRename',
-            %{$user}
-        );
     }
 
     # Extra attributes
