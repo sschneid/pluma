@@ -133,7 +133,19 @@ sub move {
 
     delete $obj->{'dn'};
 
-    my $dn = $key . ',' . $arg->{'base'};
+    if ( $arg->{'newuser'} ) {
+        $key =~ s/^(.*)\=.*$/$1=$arg->{'newuser'}/g;
+        $obj->{'uid'} = $arg->{'newuser'};
+    }
+
+    my ( $dn );
+
+    if ( $arg->{'base'} ) {
+        $dn = $key . ',' . $arg->{'base'};
+    }
+    else {
+        $dn = $key . ',' . $base;
+    }
 
     $self->add( $dn, attr => [ %{$obj} ] );
     $self->delete( $arg->{'dn'} );
