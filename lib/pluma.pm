@@ -74,6 +74,8 @@ sub setup {
         }
     }
 
+    $self->{'ldap'}->set( %{$self->{'config'}} );
+
     # User defaults if not specified
     $self->{'config'}->{'user.uniqueID'}     ||= 'uid';
     $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';

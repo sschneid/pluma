@@ -29,12 +29,20 @@ sub new {
     )
     || return( 0 );
 
-    $self->{'util'} = pluma::Util->new();
-    
-    $self->{'config'} = $self->{'util'}->readConfig( configFile => 'pluma.cfg' )
-        || die qq(Error reading configuration file pluma.cfg\n);
-
     return( $self );
+}
+
+sub set {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach ( keys %{$arg} ) {
+        $self->{'config'}->{$_} = $arg->{$_};
+    }
+
+    return( 1 );
 }
 
 sub bind {
@@ -142,7 +150,7 @@ sub move {
         $key =~ s/^(.*)\=.*$/$1=$arg->{'newuser'}/g;
 
         my $existing = $self->fetch(
-            base   => $base,
+            base   => $self->{'config'}->{'ldap.Base.User'},
             filter => $key,
             attrs  => [ '*' ]
         );
