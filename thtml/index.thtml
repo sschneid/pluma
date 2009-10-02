@@ -9,7 +9,7 @@
         <script type="text/javascript" src="pluma.js"></script>
     </head>
 
-    <body>
+    <body onload="setFormFocus()">
         <div id="page">
 
         <div id="head">
