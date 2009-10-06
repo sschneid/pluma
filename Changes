@@ -1,5 +1,19 @@
 Revision history of pluma
 
+1.12
+* Tue Sep 29 2009 Scott Schneider <sschneid@gmail.com>
+- More intelligent support for hyphenated names (givenName, sn)
+- Support for @group.objectClass configuration
+- Support for @user.extraAttributes
+- Better/less cryptic LDAP error messages
+- Bug fixes:
+    - Disallow non-alphanumeric user names when creating new users
+    - welcomeLetters were being sent and audit log was being written even
+      when user/group creations were erroring out; fixed
+    - Explicitly unbind & disconnect from LDAP server at end of session
+- Style tweaks:
+    - Form-element focus
+
 1.11
 * Fri Jun 05 2009 Scott Schneider <sschneid@gmail.com>
 - OpenLDAP support
@@ -7,7 +21,7 @@ Revision history of pluma
 - Better error reporting during failed object creation
 - Bug fixes:
     - givenName, sn, & gecos updated when cn is changed
-    - Suppressed non-existant variable calls from filling up the errlog
+    - Suppressed non-existent variable calls from filling up the errlog
 
 1.10
 * Thu May 21 2009 Scott Schneider <sschneid@gmail.com>

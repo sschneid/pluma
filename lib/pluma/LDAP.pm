@@ -59,6 +59,15 @@ sub connect {
     return( 1 );
 }
 
+sub disconnect {
+    my $self = shift;
+
+    $self->{'ldap'}->unbind();
+    $self->{'ldap'}->disconnect();
+
+    return( 1 );
+}
+
 sub fetch {
     my $self = shift;
 

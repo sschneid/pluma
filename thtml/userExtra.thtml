@@ -1,0 +1,12 @@
+
+              <input type="hidden" name="<!-- tmpl_var name="attribute" -->Was" value="<!-- tmpl_var name="value" -->" />
+              <tr>
+                <td width="10%"><div class="attr"><!-- tmpl_var name="attribute" -->:</div></td>
+                <td width="35%"><div class="valnochg"><input name="<!-- tmpl_var name="attribute" -->" value="<!-- tmpl_var name="value" -->" /></div></td>
+
+                <td width="10%"></td>
+
+                <td width="10%"><div class="attr"></div></td>
+                <td width="35%"><div class="valnochg"></div></td>
+              </tr>
+

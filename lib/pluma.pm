@@ -23,9 +23,9 @@ use warnings;
 sub setup {
     my $self = shift;
 
+    # Load pluma::Util and read system configuration from pluma.cfg
     $self->{'util'} = pluma::Util->new();
 
-    # Read configuration from pluma.cfg
     $self->{'config'} = $self->{'util'}->readConfig( configFile => 'pluma.cfg' )
     || die qq(Error reading configuration file pluma.cfg\n);
 
@@ -123,6 +123,7 @@ sub teardown {
     my $self = shift;
 
     $self->{'util'}->logClose() if $self->{'audit'};
+    $self->{'ldap'}->disconnect();
 }
 
 sub displaySearch {
@@ -552,6 +553,23 @@ sub displayUser {
         )
     }
 
+    # Extra attributes
+    if ( $self->{'config'}->{'user.extraAttributes'} ) {
+        unless ( ref $self->{'config'}->{'user.extraAttributes'} ) {
+            $self->{'config'}->{'user.extraAttributes'} =
+                [ $self->{'config'}->{'user.extraAttributes'} ];
+        }
+
+        while ( @{$self->{'config'}->{'user.extraAttributes'}} ) {
+            my $attribute = shift @{$self->{'config'}->{'user.extraAttributes'}};
+            $user->{'extra'} .= $self->{'util'}->wrap(
+                container => 'userExtra',
+                attribute => $attribute,
+                value     => $user->{$attribute} || ''
+            );
+        }
+    }
+
     # Render
     if ( $self->{'config'}->{'user.POSIX'} ) {
         return( $self->{'util'}->wrapAll( container => 'user', %{$user} ) );
@@ -722,17 +740,27 @@ sub modUser {
         }
     }
 
-    foreach my $attr ( qw/ cn gidNumber homeDirectory loginShell mail uidNumber / ) {
+    my ( @attributes );
+    
+    @attributes = qw/ cn gidNumber homeDirectory loginShell mail uidNumber /;
+
+    # Extra attributes
+    if ( $self->{'config'}->{'user.extraAttributes'} ) {
+        unless ( ref $self->{'config'}->{'user.extraAttributes'} ) {
+            $self->{'config'}->{'user.extraAttributes'} =
+                [ $self->{'config'}->{'user.extraAttributes'} ];
+        }
+
+        push @attributes, @{$self->{'config'}->{'user.extraAttributes'}};
+    }
+    foreach my $attr ( @attributes ) {
         next unless $self->{'arg'}->{$attr};
 
         unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
-            $self->{'ldap'}->modify(
-                $self->{'arg'}->{'dn'},
-                replace => { $attr => $self->{'arg'}->{$attr} }
-            );
-
             if ( $attr eq 'cn' ) {
                 my ( $chg );
+
+                $chg->{'cn'} = $self->{'arg'}->{'cn'};
 
                 $chg->{'sn'} = $self->{'arg'}->{'cn'};
                 $chg->{'sn'} =~ s/^.+?(\w+)$/$1/;
@@ -750,6 +778,18 @@ sub modUser {
                         replace => { $_ => $chg->{$_} }
                     );
                 }
+            }
+            else {
+                my ( $action );
+
+                $self->{'arg'}->{$attr . 'Was'} eq ''
+                    ? $action = 'add'
+                    : $action = 'replace';
+
+                $self->{'ldap'}->modify(
+                    $self->{'arg'}->{'dn'},
+                    $action => { $attr => $self->{'arg'}->{$attr} }
+                );
             }
 
             $self->{'arg'}->{$attr . 'Was'} ||= 'null';
@@ -900,6 +940,100 @@ sub create {
                     digest => $self->{'config'}->{'pw.Encrypt'}
                 )
             }
+        };
+
+        /group/ && do {
+            return( $self->displayCreate(
+                error => qq(Pleaes enter a group name and description.)
+            ) )
+                unless ( $self->{'arg'}->{'cn'} && $self->{'arg'}->{'description'} );
+
+            # Check for existing group
+            if ( $self->{'ldap'}->fetch(
+                base   => $self->{'config'}->{'ldap.Base.Group'},
+                filter => 'cn=' . $self->{'arg'}->{'cn'},
+                attrs  => [ 'dn' ]
+            ) ) {
+                return( $self->displayCreate(
+                    error =>
+                        qq(<a href="?group=$self->{'arg'}->{'cn'}">)
+                      . qq(Group ')
+                      . $self->{'arg'}->{'cn'}
+                      . qq(' already exists!)
+                      . qq(</a>)
+                ) )
+            }
+
+           $self->{'arg'}->{'group'} = $self->{'arg'}->{'cn'};
+
+            $create->{'dn'} = 'cn=' . $self->{'arg'}->{'cn'} . ','
+                . $self->{'config'}->{'ldap.Base.Group'};
+
+            $create->{'attr'}->{'cn'}          = $self->{'arg'}->{'cn'};
+            $create->{'attr'}->{'description'} = $self->{'arg'}->{'description'};
+
+            $create->{'attr'}->{'objectClass'} = [
+                'top', $self->{'config'}->{'group.objectClass'}
+            ];
+
+            if ( $self->{'config'}->{'group.objectClass'} ) {
+                push @{$create->{'attr'}->{'objectClass'}},
+                    $self->{'config'}->{'group.objectClass'}
+                        unless grep {
+                            $_ eq $self->{'config'}->{'group.objectClass'}
+                        } @{$create->{'attr'}->{'objectClass'}};
+            }
+
+            # Populate with a blank uniqueMember for OpenLDAP
+            if ( $self->{'config'}->{'group.memberAttribute'} eq 'uniqueMember' ) {
+                $create->{'attr'}->{$self->{'config'}->{'group.memberAttribute'}} = '';
+            }
+
+            if ( $self->{'config'}->{'group.POSIX'} ) {
+                push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup'
+                    unless grep {
+                        $_ eq 'posixGroup'
+                    } @{$create->{'attr'}->{'objectClass'}};
+
+                $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
+                    base => $self->{'config'}->{'ldap.Base.Group'},
+                    unit => 'gid'
+                );
+            }
+        };
+    }
+
+    my $result =  $self->{'ldap'}->add(
+        $create->{'dn'}, attr => [ %{$create->{'attr'}} ]
+    );
+
+    if ( $result->code() ) {
+        my $error = $result->error();
+
+        for ( $error ) {
+            /No such object/ && do {
+                my ( $base );
+
+                for ( $self->{'arg'}->{'create'} ) {
+                    /user/  && do { $base = $self->{'config'}->{'ldap.Base.User'}; };
+                    /group/ && do { $base = $self->{'config'}->{'ldap.Base.Group'}; };
+                    
+                    $error .= qq( (could not find '$base') );
+                }
+            };
+        }
+
+        return( $self->displayCreate(
+            error => 'LDAP error: ' . $error
+          ) )
+    }
+
+    for ( $self->{'arg'}->{'create'} ) {
+        /user/ && do {
+            $self->{'util'}->log(
+                what   => 'u:' .  $self->{'arg'}->{'user'},
+                action => 'create'
+            ) if $self->{'audit'};
 
             if (
                 $self->{'config'}->{'mail.WelcomeLetter'} &&
@@ -933,91 +1067,17 @@ sub create {
                 }
             }
 
-            $self->{'util'}->log(
-                what   => 'u:' .  $self->{'arg'}->{'user'},
-                action => 'create'
-            ) if $self->{'audit'};
+            return( $self->displayUser() );
         };
 
         /group/ && do {
-            return( $self->displayCreate(
-                error => qq(Pleaes enter a group name and description.)
-            ) )
-                unless ( $self->{'arg'}->{'cn'} && $self->{'arg'}->{'description'} );
-
-            # Check for existing group
-            if ( $self->{'ldap'}->fetch(
-                base   => $self->{'config'}->{'ldap.Base.Group'},
-                filter => 'cn=' . $self->{'arg'}->{'cn'},
-                attrs  => [ 'dn' ]
-            ) ) {
-                return( $self->displayCreate(
-                    error =>
-                        qq(<a href="?group=$self->{'arg'}->{'cn'}">)
-                      . qq(Group ')
-                      . $self->{'arg'}->{'cn'}
-                      . qq(' already exists!)
-                      . qq(</a>)
-                ) )
-            }
-
-           $self->{'arg'}->{'group'} = $self->{'arg'}->{'cn'};
-
-            $create->{'dn'} = 'cn=' . $self->{'arg'}->{'cn'} . ','
-                . $self->{'config'}->{'ldap.Base.Group'};
-
-            $create->{'attr'}->{'cn'}          = $self->{'arg'}->{'cn'};
-            $create->{'attr'}->{'description'} = $self->{'arg'}->{'description'};
-
-            $create->{'attr'}->{'objectClass'} = [ qw/
-                top
-            / ];
-
-            if ( $self->{'config'}->{'group.objectClass'} ) {
-                push @{$create->{'attr'}->{'objectClass'}},
-                    $self->{'config'}->{'group.objectClass'}
-                        unless grep {
-                            $_ eq $self->{'config'}->{'group.objectClass'}
-                        } @{$create->{'attr'}->{'objectClass'}};
-            }
-
-            # Populate with a blank uniqueMember for OpenLDAP
-            if ( $self->{'config'}->{'group.memberAttribute'} eq 'uniqueMember' ) {
-                $create->{'attr'}->{$self->{'config'}->{'group.memberAttribute'}} = '';
-            }
-
-            if ( $self->{'config'}->{'group.POSIX'} ) {
-                push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup'
-                    unless grep {
-                        $_ eq 'posixGroup'
-                    } @{$create->{'attr'}->{'objectClass'}};
-
-                $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
-                    base => $self->{'config'}->{'ldap.Base.Group'},
-                    unit => 'gid'
-                );
-            }
-
             $self->{'util'}->log(
                 what   => 'g:' .  $self->{'arg'}->{'group'},
                 action => 'create'
             ) if $self->{'audit'};
+
+            return( $self->displayGroup() );
         };
-    }
-
-    my $result =  $self->{'ldap'}->add(
-        $create->{'dn'}, attr => [ %{$create->{'attr'}} ]
-    );
-
-    if ( $result->code() ) {
-        return( $self->displayCreate(
-            error => 'LDAP error: ' . $result->error()
-          ) )
-    }
-
-    for ( $self->{'arg'}->{'create'} ) {
-        /user/  && return( $self->displayUser() );
-        /group/ && return( $self->displayGroup() );
     }
 }
 
