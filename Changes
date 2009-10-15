@@ -1,5 +1,13 @@
 Revision history of pluma
 
+1.13
+* Thu Oct 15 2009 Scott Schneider <sschneid@gmail.com>
+- Account (username) renaming is now supported
+- Configuration file allows granting of rename, enable/disable, and delete
+- Bug fixes:
+    - Placeholder for user.extraAttributes was missing from 1.12 (oops!)
+    - Enabled LDAP limits (fetch.Limit.Size and fetch.Limit.Time)
+
 1.12
 * Tue Sep 29 2009 Scott Schneider <sschneid@gmail.com>
 - More intelligent support for hyphenated names (givenName, sn)

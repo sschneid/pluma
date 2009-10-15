@@ -49,3 +49,16 @@ That said, it will work fine with OpenLDAP, with a few exceptions:
 Thanks to Peter McNabb <peter@mcnabbs.org> for help and patching to enable
 OpenLDAP support!
 
+
+
+3. Open source
+------------------
+
+Want to help with the development of pluma, or download bleeding-edge code?
+I manage all changes through GitHub:
+
+    - http://github.com/sschneid/pluma
+
+I can also be reached through e-mail for any bug-reporting or questions at
+sschneid@gmail.com.
+
