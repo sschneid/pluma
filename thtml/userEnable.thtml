@@ -4,7 +4,7 @@
                     <input type="hidden" name="rm" value="enable" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
                     <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
-                    <input type="submit" class="button" name="" value=" Enable this user " />
+                    <input type="submit" class="button" name="" value=" Enable " />
                   </form>
                 </td>
 

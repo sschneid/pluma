@@ -74,6 +74,8 @@ sub setup {
         }
     }
 
+    $self->{'ldap'}->set( %{$self->{'config'}} );
+
     # User defaults if not specified
     $self->{'config'}->{'user.uniqueID'}     ||= 'uid';
     $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';
@@ -109,6 +111,7 @@ sub setup {
         disable
         enable
         password
+        rename
         search
     / ] );
 
@@ -541,16 +544,41 @@ sub displayUser {
        );
     }
 
-    $user->{'disable'} = $self->{'util'}->wrap(
-        container => 'user' . ( $user->{'nsAccountLock'} ? 'Enable' : 'Disable' ),
-        %{$user}
-    );
+    # Rename, enable/disable, & delete buttons
+    foreach my $function ( qw/ Rename Disable Delete / ) {
+        if ( $self->{'config'}->{'user.allow' . $function} eq '1' ) {
+            my ( $container );
+
+            if ( $function eq 'Disable' ) {
+                $container = 'user' . (
+                    $user->{'nsAccountLock'}
+                        ? 'Enable'
+                        : 'Disable'
+                );
+            }
+            else {
+                $container = 'user' . $function;
+            }
+
+            $user->{lc($function)} = $self->{'util'}->wrap(
+                container => $container,
+                %{$user}
+            );
+        }
+    }
 
     if ( $user->{'nsAccountLock'} ) {
         $user->{'error'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'This account has been disabled.'
-        )
+        );
+    }
+
+    if ( $self->{'arg'}->{'error'} ) {
+        $user->{'error'} .= $self->{'util'}->wrap(
+            container => 'error',
+            error     => $self->{'arg'}->{'error'}
+        );
     }
 
     # Extra attributes
@@ -1201,6 +1229,34 @@ sub password {
         what   => 'u:' .  $self->{'arg'}->{'user'},
         action => 'password modify'
     ) if $self->{'audit'};
+
+    return( $self->displayUser() );
+}
+
+sub rename {
+    my $self = shift;
+
+    # Move the user
+    unless (
+        $self->{'ldap'}->move(
+            dn      => $self->{'arg'}->{'dn'},
+            base    => $self->{'arg'}->{'base'},
+            newuser => $self->{'arg'}->{'newuser'}
+        )
+    ) {
+        $self->{'arg'}->{'error'} = 'The specified username already exists.';
+
+        return( $self->displayUser() );
+    }
+
+    $self->{'util'}->log(
+        what   => 'u:' . $self->{'arg'}->{'newuser'},
+        item   => 'user',
+        object => '(was ' . $self->{'arg'}->{'user'} . ')',
+        action => 'move'
+    ) if $self->{'audit'};
+ 
+    $self->{'arg'}->{'user'} = $self->{'arg'}->{'newuser'};
 
     return( $self->displayUser() );
 }

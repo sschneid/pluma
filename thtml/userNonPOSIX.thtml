@@ -26,14 +26,15 @@
                 <td width="10%"><div class="attr">E-mail address:</div></td>
                 <td width="35%"><div class="valnochg"><input name="mail" value="<!-- tmpl_var name="mail" -->" /></div></td>
               </tr>
-               <tr>
-                <td width="10%"><div class="attr"></div></td>
-                <td width="35%"><div class="valnochg"></div></td>
+              <!-- tmpl_var name="extra" -->
+              <tr>
+                <td width="10%"><div class="attr">Org unit:</div></td>
+                <td width="35%"><div class="valnochg"><!-- tmpl_var name="bases" --></div></td>
 
                 <td width="10%"></td>
 
-                <td width="10%"><div class="attr">Org unit:</div></td>
-                <td width="35%"><div class="valnochg"><!-- tmpl_var name="bases" --></div></td>
+                <td width="10%"><div class="attr"></div></td>
+                <td width="35%"><div class="valnochg"></div></td>
               </tr>
             </table>
 
@@ -80,15 +81,9 @@
                     <input type="submit" class="button" name="" value=" Change password " onclick="return validatePwd()" />
                   </form>
                 </td>
+                <!-- tmpl_var name="rename" -->
                 <!-- tmpl_var name="disable" -->
-                <td align="right">
-                  <form method="post" action="">
-                    <input type="hidden" name="rm" value="delete" />
-                    <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
-                    <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
-                    <input type="submit" class="button" name="" value=" Delete this user " onclick="return delUserConfirm()" />
-                  </form>
-                </td>
+                <!-- tmpl_var name="delete" -->
               </tr>
             </table>
 

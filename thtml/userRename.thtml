@@ -1,10 +1,11 @@
 
                 <td align="right">
                   <form method="post" action="">
-                    <input type="hidden" name="rm" value="disable" />
+                    <input type="hidden" name="rm" value="rename" />
                     <input type="hidden" name="user" value="<!-- tmpl_var name="uid" -->" />
                     <input type="hidden" name="dn" value="<!-- tmpl_var name="dn" -->" />
-                    <input type="submit" class="button" name="" value=" Disable " />
+                    <input type="hidden" name="newuser" value="newuser" id="newuser" />
+                    <input type="submit" class="button" name="" value=" Rename " onclick="return renameUser()" />
                   </form>
                 </td>
 

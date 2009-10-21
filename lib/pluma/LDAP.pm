@@ -32,6 +32,19 @@ sub new {
     return( $self );
 }
 
+sub set {
+    my $self = shift;
+
+    my ( $arg );
+    %{$arg} = @_;
+
+    foreach ( keys %{$arg} ) {
+        $self->{'config'}->{$_} = $arg->{$_};
+    }
+
+    return( 1 );
+}
+
 sub bind {
     my $self = shift;
 
@@ -133,9 +146,51 @@ sub move {
 
     delete $obj->{'dn'};
 
-    my $dn = $key . ',' . $arg->{'base'};
+    if ( $arg->{'newuser'} ) {
+        $key =~ s/^(.*)\=.*$/$1=$arg->{'newuser'}/g;
+
+        my $existing = $self->fetch(
+            base   => $self->{'config'}->{'ldap.Base.User'},
+            filter => $key,
+            attrs  => [ '*' ]
+        );
+
+        if ( $existing ) { return( 0 ); }
+
+        $obj->{'uid'} = $arg->{'newuser'};
+    }
+
+    my ( $dn );
+
+    if ( $arg->{'base'} ) {
+        $dn = $key . ',' . $arg->{'base'};
+    }
+    else {
+        $dn = $key . ',' . $base;
+    }
 
     $self->add( $dn, attr => [ %{$obj} ] );
+
+    # Fix group membership
+    my $group = $self->fetch(
+        base   => $self->{'config'}->{'ldap.Base.Group'},
+        filter => 'uniqueMember=' . $arg->{'dn'},
+        attrs  => [ 'cn' ]
+    );
+
+    if ( $group ) {
+        $group = { 'g' => $group } if $group->{'cn'};
+
+        foreach my $g ( keys %{$group} ) {
+            $self->modify(
+                'cn=' . $group->{$g}->{'cn'} . ','
+                      . $self->{'config'}->{'ldap.Base.Group'},
+                add    => { 'uniqueMember' => $dn },
+                delete => { 'uniqueMember' => $arg->{'dn'} }
+            );
+        }
+    }
+
     $self->delete( $arg->{'dn'} );
 
     return( 1 );
