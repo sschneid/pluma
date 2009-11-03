@@ -109,22 +109,19 @@ function renameUser() {
 }
 
 function validatePwd() {
-  var invalid = " ";
   var minLength = 6;
-  var pw1 = document.pwChange.password.value;
-  var pw2 = document.pwChange.passwordConfirm.value;
 
   if (document.pwChange.password.value.length < minLength) {
     alert('Passwords must be at least ' + minLength + ' characters long.');
     return false;
   }
 
-  if (document.pwChange.password.value.indexOf(invalid) > -1) {
+  if (document.pwChange.password.value.indexOf(' ') > -1) {
     alert("Sorry, spaces are not allowed.");
     return false;
   }
 
-  if (pw1 != pw2) {
+  if (document.pwChange.password.value != document.pwChange.passwordConfirm.value) {
     alert("Passwords do not match.");
     return false;
   }
