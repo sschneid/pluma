@@ -833,7 +833,6 @@ sub modUser {
         }
     }
 
-
     return( $self->displayUser() );
 }
 
