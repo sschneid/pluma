@@ -409,13 +409,13 @@ sub displayUser {
 
     if ( $self->{'config'}->{'user.POSIX'} ) {
         # Login shells
-        unless ( $self->{'config'}->{'shells'} ) {
-            push @{$self->{'config'}->{'shells'}}, '/bin/false';
+        unless ( $self->{'config'}->{'user.POSIX.loginShell'} ) {
+            push @{$self->{'config'}->{'user.POSIX.loginShell'}}, '/bin/false';
         }
         $user->{'shells'} = $self->{'cgi'}->popup_menu(
             -name    => 'loginShell',
             -class   => 'dropBox',
-            -values  => [ sort @{$self->{'config'}->{'shells'}} ],
+            -values  => [ sort @{$self->{'config'}->{'user.POSIX.loginShell'}} ],
             -default => $user->{'loginShell'}
         );
 
@@ -882,23 +882,23 @@ sub create {
 
             if ( $self->{'config'}->{'user.POSIX'} ) {
                 $create->{'attr'}->{'gecos'} = $self->{'arg'}->{'cn'};
-                $self->{'config'}->{'prefix.Home'} ||= '/home/';
-                $self->{'config'}->{'prefix.Home'} .= '/' unless /\/$/;
+                $self->{'config'}->{'user.POSIX.homeDir.prefix'} ||= '/home/';
+                $self->{'config'}->{'user.POSIX.homeDir.prefix'} .= '/' unless /\/$/;
                 $create->{'attr'}->{'homeDirectory'} =
-                    $self->{'config'}->{'prefix.Home'} . $self->{'arg'}->{'uid'};
+                    $self->{'config'}->{'user.POSIX.homeDir.prefix'} . $self->{'arg'}->{'uid'};
 
                 $create->{'attr'}->{'uidNumber'} = $self->{'ldap'}->getNextNum(
                     base => $self->{'config'}->{'ldap.Base.User'},
                     unit => 'uid'
                 );
 
-                $self->{'config'}->{'default.GID'} ||= '100';
+                $self->{'config'}->{'user.POSIX.GID.default'} ||= '100';
                 $create->{'attr'}->{'gidNumber'}
-                    = $self->{'config'}->{'default.GID'};
+                    = $self->{'config'}->{'user.POSIX.GID.default'};
 
-                $self->{'config'}->{'default.Shell'} ||= '/bin/false';
+                $self->{'config'}->{'user.POSIX.loginShell.default'} ||= '/bin/false';
                 $create->{'attr'}->{'loginShell'}
-                    = $self->{'config'}->{'default.Shell'};
+                    = $self->{'config'}->{'user.POSIX.loginShell.default'};
 
                 push @{$create->{'attr'}->{'objectClass'}}, 'posixAccount'
                     unless grep {
@@ -1068,6 +1068,14 @@ sub delete {
     my $self = shift;
 
     return( $self->displayUser() ) unless $self->{'arg'}->{'dn'};
+
+##
+    unless ( $self->{'config'}->{'user.allowDelete'} eq '1' ) {
+        $self->{'arg'}->{'error'} = 'You are not allowed to delete users!';
+
+        return( $self->displayUser() );
+    }
+##
 
     if ( $self->{'arg'}->{'user'} ) {
         $self->{'ldap'}->delete( $self->{'arg'}->{'dn'} );
