@@ -555,7 +555,7 @@ sub displayUser {
                 );
             }
             else {
-                $container = 'user' . $function;
+                $container = 'user' . ucfirst( $function );
             }
 
             $user->{$function} = $self->{'util'}->wrap(
