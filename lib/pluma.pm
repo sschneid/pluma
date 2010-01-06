@@ -41,24 +41,24 @@ sub setup {
 
     # Connect and bind to LDAP server
     $self->{'ldap'} = pluma::LDAP->new(
-        server => $self->{'config'}->{'ldap.Server'},
-        SSL    => $self->{'config'}->{'ldap.SSL'}
+        server => $self->{'config'}->{'ldap.server'},
+        SSL    => $self->{'config'}->{'ldap.ssl'}
     )
-    || die qq(Error connecting to $self->{'config'}->{'ldap.Server'}\n);
+    || die qq(Error connecting to $self->{'config'}->{'ldap.server'}\n);
 
     $self->{'ldap'}->bind(
-        bindDN   => $self->{'config'}->{'auth.BindDN'},
-        password => $self->{'config'}->{'auth.Password'}
+        bindDN   => $self->{'config'}->{'auth.binddn'},
+        password => $self->{'config'}->{'auth.password'}
     )
-    || die qq(Error binding as $self->{'config'}->{'auth.BindDN'}\n);
+    || die qq(Error binding as $self->{'config'}->{'auth.binddn'}\n);
 
     # Find user base DN(s) if not specified
-    unless ( $self->{'config'}->{'ldap.Base.User'} ) {
+    unless ( $self->{'config'}->{'ldap.base.user'} ) {
         my ( $dn );
 
         foreach (
             keys %{$self->{'ldap'}->fetch(
-                base   => $self->{'config'}->{'ldap.Base'},
+                base   => $self->{'config'}->{'ldap.base'},
                 filter => 'objectClass=person',
                 attrs  => [ 'dn' ]
             )}
@@ -67,21 +67,21 @@ sub setup {
         }
 
         if ( keys %{$dn} > 1 ) {
-            $self->{'config'}->{'ldap.Base.User'} = [ keys %{$dn} ];
+            $self->{'config'}->{'ldap.base.user'} = [ keys %{$dn} ];
         }
         else {
-            map { $self->{'config'}->{'ldap.Base.User'} = $_; } keys %{$dn};
+            map { $self->{'config'}->{'ldap.base.user'} = $_; } keys %{$dn};
         }
     }
 
     $self->{'ldap'}->set( %{$self->{'config'}} );
 
     # User defaults if not specified
-    $self->{'config'}->{'user.uniqueID'}     ||= 'uid';
-    $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';
+    $self->{'config'}->{'user.uniqueid'}     ||= 'uid';
+    $self->{'config'}->{'group.objectclass'} ||= 'groupOfUniqueNames';
 
-    unless( defined( $self->{'config'}->{'user.POSIX.Hosts'} ) ) {
-        $self->{'config'}->{'user.POSIX.Hosts'} = '1';
+    unless( defined( $self->{'config'}->{'user.posix.hosts'} ) ) {
+        $self->{'config'}->{'user.posix.hosts'} = '1';
     }
 
     # Logging
@@ -138,9 +138,9 @@ sub displaySearch {
         error     => $arg->{'error'}
     ) if $arg->{'error'};
 
-    if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+    if ( ref $self->{'config'}->{'ldap.base.user'} ) {
         my $labels = $self->{'ldap'}->getLabels(
-            base => $self->{'config'}->{'ldap.Base.User'}
+            base => $self->{'config'}->{'ldap.base.user'}
         );
 
         $labels->{''} = ' All ';
@@ -185,10 +185,10 @@ sub displayCreate {
 
     if (
         ( $self->{'arg'}->{'create'} eq 'user' ) &&
-        ( ref $self->{'config'}->{'ldap.Base.User'} )
+        ( ref $self->{'config'}->{'ldap.base.user'} )
     ) {
         my $labels = $self->{'ldap'}->getLabels(
-            base => $self->{'config'}->{'ldap.Base.User'}
+            base => $self->{'config'}->{'ldap.base.user'}
         );
 
         return( $self->{'util'}->wrapAll(
@@ -204,9 +204,9 @@ sub displayCreate {
                     -labels  => $labels,
                 )
             ),
-            mailformat => $self->{'config'}->{'mail.Format'},
+            mailformat => $self->{'config'}->{'mail.format'},
             letter     => sub {
-                if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
+                if ( $self->{'config'}->{'mail.welcomeletter'} ) {
                     return( $self->{'util'}->wrap(
                         container => 'selectWelcomeLetter'
                     ) );
@@ -222,7 +222,7 @@ sub displayCreate {
         return( $self->{'util'}->wrapAll(
             container  => $self->{'arg'}->{'create'} . 'Add',
             letter     => sub {
-                if ( $self->{'config'}->{'mail.WelcomeLetter'} ) {
+                if ( $self->{'config'}->{'mail.welcomeletter'} ) {
                     return( $self->{'util'}->wrap(
                         container => 'selectWelcomeLetter'
                     ) );
@@ -231,7 +231,7 @@ sub displayCreate {
                     return( '' );
                 }
             },
-            mailformat => $self->{'config'}->{'mail.Format'},
+            mailformat => $self->{'config'}->{'mail.format'},
             error      => $error
         ) );
     }
@@ -243,25 +243,25 @@ sub displayGroup {
     return( $self->displaySearch() ) unless $self->{'arg'}->{'group'};
 
     my $group = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.Group'},
+        base   => $self->{'config'}->{'ldap.base.group'},
         filter =>
-            '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+            '(& (objectClass=' . $self->{'config'}->{'group.objectclass'} . ')'
              . '(cn=' . $self->{'arg'}->{'group'} . ') )',
         attrs  => [ '*' ]
     )
     || return( $self->search( search => $self->{'arg'}->{'group'} ) );
 
     for ( @{$group->{'objectClass'}} ) { $group->{'_objectClass'}->{lc( $_ )} = 1; }
-    $self->{'config'}->{'group.POSIX'} = 0
+    $self->{'config'}->{'group.posix'} = 0
         unless $group->{'_objectClass'}->{'posixgroup'};
 
     # Primary
     if (
-        $self->{'config'}->{'user.POSIX'} &&
-        $self->{'config'}->{'group.POSIX'}
+        $self->{'config'}->{'user.posix'} &&
+        $self->{'config'}->{'group.posix'}
     ) {
         my $primary = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.User'},
+            base   => $self->{'config'}->{'ldap.base.user'},
             filter => 'gidNumber=' . $group->{'gidNumber'},
             attrs  => [ 'uid', 'cn' ]
         );
@@ -322,7 +322,7 @@ sub displayGroup {
     $filter .= ' )';
 
     my $member = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.User'},
+        base   => $self->{'config'}->{'ldap.base.user'},
         filter => $filter,
         attrs  => [ 'cn', 'mail', 'nsAccountLock' ]
     );
@@ -341,19 +341,19 @@ sub displayGroup {
     # Single-member group support
     if ( $member->{'cn'} ) {
         my $uid = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.User'},
+            base   => $self->{'config'}->{'ldap.base.user'},
             filter => "cn = $member->{'cn'}",
             attrs  => [ 'uid' ]
         )->{'uid'};
 
         $member = {
-            "uid=$uid," . $self->{'config'}->{'ldap.Base.User'} => $member
+            "uid=$uid," . $self->{'config'}->{'ldap.base.user'} => $member
         };
     }
 
     $group->{'members'} = '<table>';
 
-    if ( $self->{'config'}->{'group.POSIX'} ) { 
+    if ( $self->{'config'}->{'group.posix'} ) { 
         $group->{'cntr'} = 'resultsItem';
     }
 
@@ -383,7 +383,7 @@ sub displayGroup {
     $group->{'members'} .= '</table>';
 
     # Render
-    if ( $self->{'config'}->{'group.POSIX'} ) {
+    if ( $self->{'config'}->{'group.posix'} ) {
         return( $self->{'util'}->wrapAll( container => 'group', %{$group} ) );
     }
     else {
@@ -397,29 +397,29 @@ sub displayUser {
     return( $self->displaySearch() ) unless $self->{'arg'}->{'user'};
 
     my $user = $self->{'ldap'}->fetch(
-        base   => $self->{'config'}->{'ldap.Base.User'},
+        base   => $self->{'config'}->{'ldap.base.user'},
         filter => 'uid=' . $self->{'arg'}->{'user'},
         attrs  => [ '*', 'nsAccountLock' ]
     )
     || return( $self->search( search => $self->{'arg'}->{'user'} ) );
 
     for ( @{$user->{'objectClass'}} ) { $user->{'_objectClass'}->{lc( $_ )} = 1; }
-    $self->{'config'}->{'user.POSIX'} = 0
+    $self->{'config'}->{'user.posix'} = 0
         unless $user->{'_objectClass'}->{'posixaccount'};
 
-    if ( $self->{'config'}->{'user.POSIX'} ) {
+    if ( $self->{'config'}->{'user.posix'} ) {
         # Login shells
-        unless ( $self->{'config'}->{'user.POSIX.loginShell'} ) {
-            push @{$self->{'config'}->{'user.POSIX.loginShell'}}, '/bin/false';
+        unless ( $self->{'config'}->{'user.posix.loginshell'} ) {
+            push @{$self->{'config'}->{'user.posix.loginshell'}}, '/bin/false';
         }
         $user->{'shells'} = $self->{'cgi'}->popup_menu(
             -name    => 'loginShell',
             -class   => 'dropBox',
-            -values  => [ sort @{$self->{'config'}->{'user.POSIX.loginShell'}} ],
+            -values  => [ sort @{$self->{'config'}->{'user.posix.loginshell'}} ],
             -default => $user->{'loginShell'}
         );
 
-        unless ( $self->{'config'}->{'user.POSIX.Hosts'} eq '0' ) {
+        unless ( $self->{'config'}->{'user.posix.hosts'} eq '0' ) {
             # Hosts
             my ( $host );
             if ( $user->{'host'} ) {
@@ -429,7 +429,7 @@ sub displayUser {
             }
 
             my $hosts = $self->{'ldap'}->fetch(
-                base   => $self->{'config'}->{'ldap.Base.Host'},
+                base   => $self->{'config'}->{'ldap.base.host'},
                 filter => 'objectClass=ipHost',
                 attrs  => [ 'cn' ]
             );
@@ -463,8 +463,8 @@ sub displayUser {
 
     # Groups
     my $group = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.Group'},
-            filter => 'objectClass=' . $self->{'config'}->{'group.objectClass'},
+            base   => $self->{'config'}->{'ldap.base.group'},
+            filter => 'objectClass=' . $self->{'config'}->{'group.objectclass'},
             attrs  => [ 'cn', 'gidNumber', 'uniqueMember' ]
     );
 
@@ -494,7 +494,7 @@ sub displayUser {
     }
 
     # Default gidNumber
-    if ( $self->{'config'}->{'user.POSIX'} ) {
+    if ( $self->{'config'}->{'user.posix'} ) {
         $user->{'groups'} = $self->{'cgi'}->popup_menu(
             -name    =>  'gidNumber',
             -class   => 'dropBox',
@@ -517,11 +517,11 @@ sub displayUser {
     $user->{'cGroups'} = join( ',', sort keys %{$group->{1}} );
 
     # Base
-    if ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+    if ( ref $self->{'config'}->{'ldap.base.user'} ) {
         $user->{'base'} = $1 if $user->{'dn'} =~ /^uid=$user->{'uid'}\,\s*(.*)$/;
 
         my $labels = $self->{'ldap'}->getLabels(
-            base => $self->{'config'}->{'ldap.Base.User'}
+            base => $self->{'config'}->{'ldap.base.user'}
         );
 
         $user->{'bases'} = $self->{'cgi'}->popup_menu(
@@ -543,11 +543,11 @@ sub displayUser {
     }
 
     # Rename, enable/disable, & delete buttons
-    foreach my $function ( qw/ Rename Disable Delete / ) {
+    foreach my $function ( qw/ rename disable delete / ) {
         if ( $self->{'config'}->{'user.allow' . $function} eq '1' ) {
             my ( $container );
 
-            if ( $function eq 'Disable' ) {
+            if ( $function eq 'disable' ) {
                 $container = 'user' . (
                     $user->{'nsAccountLock'}
                         ? 'Enable'
@@ -558,7 +558,7 @@ sub displayUser {
                 $container = 'user' . $function;
             }
 
-            $user->{lc($function)} = $self->{'util'}->wrap(
+            $user->{$function} = $self->{'util'}->wrap(
                 container => $container,
                 %{$user}
             );
@@ -580,14 +580,14 @@ sub displayUser {
     }
 
     # Extra attributes
-    if ( $self->{'config'}->{'user.extraAttributes'} ) {
-        unless ( ref $self->{'config'}->{'user.extraAttributes'} ) {
-            $self->{'config'}->{'user.extraAttributes'} =
-                [ $self->{'config'}->{'user.extraAttributes'} ];
+    if ( $self->{'config'}->{'user.extraattributes'} ) {
+        unless ( ref $self->{'config'}->{'user.extraattributes'} ) {
+            $self->{'config'}->{'user.extraattributes'} =
+                [ $self->{'config'}->{'user.extraattributes'} ];
         }
 
-        while ( @{$self->{'config'}->{'user.extraAttributes'}} ) {
-            my $attribute = shift @{$self->{'config'}->{'user.extraAttributes'}};
+        while ( @{$self->{'config'}->{'user.extraattributes'}} ) {
+            my $attribute = shift @{$self->{'config'}->{'user.extraattributes'}};
             $user->{'extra'} .= $self->{'util'}->wrap(
                 container => 'userExtra',
                 attribute => $attribute,
@@ -597,7 +597,7 @@ sub displayUser {
     }
 
     # Render
-    if ( $self->{'config'}->{'user.POSIX'} ) {
+    if ( $self->{'config'}->{'user.posix'} ) {
         return( $self->{'util'}->wrapAll( container => 'user', %{$user} ) );
     }
     else {
@@ -612,7 +612,7 @@ sub modGroup {
         unless ( $self->{'arg'}->{$attr} eq $self->{'arg'}->{$attr . 'Was'} ) {
             $self->{'ldap'}->modify(
                 'cn=' . $self->{'arg'}->{'group'} . ','
-                      . $self->{'config'}->{'ldap.Base.Group'},
+                      . $self->{'config'}->{'ldap.base.group'},
                 replace => { $attr => $self->{'arg'}->{$attr} }
             );
 
@@ -709,7 +709,7 @@ sub modUser {
                     /group/ and do {
                         $self->{'ldap'}->modify(
                             'cn=' . $obj . ','
-                                  . $self->{'config'}->{'ldap.Base.Group'},
+                                  . $self->{'config'}->{'ldap.base.group'},
                             $action => {
                                 'uniqueMember' => $self->{'arg'}->{'dn'}
                             }
@@ -732,13 +732,13 @@ sub modUser {
     @attributes = qw/ cn gidNumber homeDirectory loginShell mail uidNumber /;
 
     # Extra attributes
-    if ( $self->{'config'}->{'user.extraAttributes'} ) {
-        unless ( ref $self->{'config'}->{'user.extraAttributes'} ) {
-            $self->{'config'}->{'user.extraAttributes'} =
-                [ $self->{'config'}->{'user.extraAttributes'} ];
+    if ( $self->{'config'}->{'user.extraattributes'} ) {
+        unless ( ref $self->{'config'}->{'user.extraattributes'} ) {
+            $self->{'config'}->{'user.extraattributes'} =
+                [ $self->{'config'}->{'user.extraattributes'} ];
         }
 
-        push @attributes, @{$self->{'config'}->{'user.extraAttributes'}};
+        push @attributes, @{$self->{'config'}->{'user.extraattributes'}};
     }
     foreach my $attr ( @attributes ) {
         next unless $self->{'arg'}->{$attr};
@@ -755,7 +755,7 @@ sub modUser {
                 $chg->{'givenName'} = $self->{'arg'}->{'cn'};
                 $chg->{'givenName'} =~ s/^([a-zA-Z\-]+).+?$/$1/;
 
-                if ( $self->{'config'}->{'user.POSIX'} ) {
+                if ( $self->{'config'}->{'user.posix'} ) {
                     $chg->{'gecos'} = $self->{'arg'}->{'cn'};
                 }
 
@@ -820,16 +820,16 @@ sub create {
  
             # Check for existing uniqueID
             if ( $self->{'ldap'}->fetch(
-                base   => $self->{'config'}->{'ldap.Base.User'},
-                filter => $self->{'config'}->{'user.uniqueID'}  . '='
-                        . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}},
+                base   => $self->{'config'}->{'ldap.base.user'},
+                filter => $self->{'config'}->{'user.uniqueid'}  . '='
+                        . $self->{'arg'}->{$self->{'config'}->{'user.uniqueid'}},
                 attrs  => [ 'dn' ]
             ) ) {
                 return( $self->displayCreate(
                     error =>
                         qq(<a href="?user=$self->{'arg'}->{'uid'}">)
                       . qq(User ')
-                      . $self->{'arg'}->{$self->{'config'}->{'user.uniqueID'}}
+                      . $self->{'arg'}->{$self->{'config'}->{'user.uniqueid'}}
                       . qq(' already exists!)
                       . qq(</a>)
                 ) )
@@ -841,7 +841,7 @@ sub create {
 
             $create->{'dn'} .= $self->{'arg'}->{'base'}
                 ? $self->{'arg'}->{'base'}
-                : $self->{'config'}->{'ldap.Base.User'};
+                : $self->{'config'}->{'ldap.base.user'};
 
             $create->{'attr'}->{'cn'} = $self->{'arg'}->{'cn'};
 
@@ -857,9 +857,9 @@ sub create {
                 if $self->{'arg'}->{'mail'};
 
             if (
-                $self->{'config'}->{'mail.Format'} && !$create->{'attr'}->{'mail'}
+                $self->{'config'}->{'mail.format'} && !$create->{'attr'}->{'mail'}
             ) {
-                $create->{'attr'}->{'mail'} = $self->{'config'}->{'mail.Format'};
+                $create->{'attr'}->{'mail'} = $self->{'config'}->{'mail.format'};
 
                 foreach ( qw/ sn givenName uid / ) {
                     $create->{'attr'}->{'mail'}
@@ -874,45 +874,45 @@ sub create {
                 inetOrgPerson
             / ];
 
-            if ( $self->{'config'}->{'user.objectClass'} ) {
+            if ( $self->{'config'}->{'user.objectclass'} ) {
                 push @{$create->{'attr'}->{'objectClass'}},
-                    @{$self->{'config'}->{'user.objectClass'}};
+                    @{$self->{'config'}->{'user.objectclass'}};
             }
 
 
-            if ( $self->{'config'}->{'user.POSIX'} ) {
+            if ( $self->{'config'}->{'user.posix'} ) {
                 $create->{'attr'}->{'gecos'} = $self->{'arg'}->{'cn'};
-                $self->{'config'}->{'user.POSIX.homeDir.prefix'} ||= '/home/';
-                $self->{'config'}->{'user.POSIX.homeDir.prefix'} .= '/' unless /\/$/;
+                $self->{'config'}->{'user.posix.homedir.prefix'} ||= '/home/';
+                $self->{'config'}->{'user.posix.homedir.prefix'} .= '/' unless /\/$/;
                 $create->{'attr'}->{'homeDirectory'} =
-                    $self->{'config'}->{'user.POSIX.homeDir.prefix'} . $self->{'arg'}->{'uid'};
+                    $self->{'config'}->{'user.posix.homedir.prefix'} . $self->{'arg'}->{'uid'};
 
                 $create->{'attr'}->{'uidNumber'} = $self->{'ldap'}->getNextNum(
-                    base => $self->{'config'}->{'ldap.Base.User'},
+                    base => $self->{'config'}->{'ldap.base.user'},
                     unit => 'uid'
                 );
 
-                $self->{'config'}->{'user.POSIX.GID.default'} ||= '100';
+                $self->{'config'}->{'user.posix.gid.default'} ||= '100';
                 $create->{'attr'}->{'gidNumber'}
-                    = $self->{'config'}->{'user.POSIX.GID.default'};
+                    = $self->{'config'}->{'user.posix.gid.default'};
 
-                $self->{'config'}->{'user.POSIX.loginShell.default'} ||= '/bin/false';
+                $self->{'config'}->{'user.posix.loginshell.default'} ||= '/bin/false';
                 $create->{'attr'}->{'loginShell'}
-                    = $self->{'config'}->{'user.POSIX.loginShell.default'};
+                    = $self->{'config'}->{'user.posix.loginshell.default'};
 
                 push @{$create->{'attr'}->{'objectClass'}}, 'posixAccount'
                     unless grep {
                         $_ eq 'posixAccount'
-                    } @{$self->{'config'}->{'user.objectClass'}};
+                    } @{$self->{'config'}->{'user.objectclass'}};
 
                 push @{$create->{'attr'}->{'objectClass'}}, 'account'
-                    unless ( $self->{'config'}->{'user.POSIX.Hosts'} eq '0' );
+                    unless ( $self->{'config'}->{'user.posix.hosts'} eq '0' );
             }
 
             if (
-                $self->{'config'}->{'user.generatePassword'} ||
+                $self->{'config'}->{'user.generatepassword'} ||
                 (
-                    $self->{'config'}->{'mail.WelcomeLetter'}  &&
+                    $self->{'config'}->{'mail.welcomeletter'}  &&
                     $self->{'arg'}->{'mail.WelcomeLetter'}
                 )
             ) {
@@ -922,7 +922,7 @@ sub create {
 
                 $create->{'attr'}->{'userPassword'} = $self->{'util'}->pwEncrypt(
                     text   => $create->{'password'},
-                    digest => $self->{'config'}->{'pw.Encrypt'}
+                    digest => $self->{'config'}->{'pw.encrypt'}
                 )
             }
         };
@@ -935,7 +935,7 @@ sub create {
 
             # Check for existing group
             if ( $self->{'ldap'}->fetch(
-                base   => $self->{'config'}->{'ldap.Base.Group'},
+                base   => $self->{'config'}->{'ldap.base.group'},
                 filter => 'cn=' . $self->{'arg'}->{'cn'},
                 attrs  => [ 'dn' ]
             ) ) {
@@ -952,34 +952,34 @@ sub create {
            $self->{'arg'}->{'group'} = $self->{'arg'}->{'cn'};
 
             $create->{'dn'} = 'cn=' . $self->{'arg'}->{'cn'} . ','
-                . $self->{'config'}->{'ldap.Base.Group'};
+                . $self->{'config'}->{'ldap.base.group'};
 
             $create->{'attr'}->{'cn'}          = $self->{'arg'}->{'cn'};
             $create->{'attr'}->{'description'} = $self->{'arg'}->{'description'};
 
             $create->{'attr'}->{'objectClass'} = [
-                'top', $self->{'config'}->{'group.objectClass'}
+                'top', $self->{'config'}->{'group.objectclass'}
             ];
 
-            if ( $self->{'config'}->{'group.objectClass'} ) {
+            if ( $self->{'config'}->{'group.objectclass'} ) {
                 push @{$create->{'attr'}->{'objectClass'}},
-                    $self->{'config'}->{'group.objectClass'}
+                    $self->{'config'}->{'group.objectclass'}
                         unless grep {
-                            $_ eq $self->{'config'}->{'group.objectClass'}
+                            $_ eq $self->{'config'}->{'group.objectclass'}
                         } @{$create->{'attr'}->{'objectClass'}};
             }
 
             # Populate with a blank uniqueMember for OpenLDAP
             $create->{'attr'}->{'uniqueMember'} = '';
 
-            if ( $self->{'config'}->{'group.POSIX'} ) {
+            if ( $self->{'config'}->{'group.posix'} ) {
                 push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup'
                     unless grep {
                         $_ eq 'posixGroup'
                     } @{$create->{'attr'}->{'objectClass'}};
 
                 $create->{'attr'}->{'gidNumber'} = $self->{'ldap'}->getNextNum(
-                    base => $self->{'config'}->{'ldap.Base.Group'},
+                    base => $self->{'config'}->{'ldap.base.group'},
                     unit => 'gid'
                 );
             }
@@ -998,8 +998,8 @@ sub create {
                 my ( $base );
 
                 for ( $self->{'arg'}->{'create'} ) {
-                    /user/  && do { $base = $self->{'config'}->{'ldap.Base.User'}; };
-                    /group/ && do { $base = $self->{'config'}->{'ldap.Base.Group'}; };
+                    /user/  && do { $base = $self->{'config'}->{'ldap.base.user'}; };
+                    /group/ && do { $base = $self->{'config'}->{'ldap.base.group'}; };
                     
                     $error .= qq( (could not find '$base') );
                 }
@@ -1019,7 +1019,7 @@ sub create {
             ) if $self->{'audit'};
 
             if (
-                $self->{'config'}->{'mail.WelcomeLetter'} &&
+                $self->{'config'}->{'mail.welcomeletter'} &&
                 $self->{'arg'}->{'mail.WelcomeLetter'}
             ) {
                 my $message = $self->{'util'}->wrap(
@@ -1029,9 +1029,9 @@ sub create {
                     password  => $create->{'password'}
                 );
 
-                $self->{'config'}->{'mail.WelcomeLetter.from'} 
+                $self->{'config'}->{'mail.welcomeletter.from'} 
                     ||= 'noreply';
-                $self->{'config'}->{'mail.WelcomeLetter.subject'}
+                $self->{'config'}->{'mail.welcomeletter.subject'}
                     ||= 'A new account has been created for you!';
 
                 use MIME::Lite;
@@ -1040,9 +1040,9 @@ sub create {
                     local $ENV{'PATH'} = '';
 
                     my $email = MIME::Lite->new(
-                        From    => $self->{'config'}->{'mail.WelcomeLetter.from'},
+                        From    => $self->{'config'}->{'mail.welcomeletter.from'},
                         To      => $create->{'attr'}->{'mail'},
-                        Subject => $self->{'config'}->{'mail.WelcomeLetter.subject'},
+                        Subject => $self->{'config'}->{'mail.welcomeletter.subject'},
                         Data    => $message 
                     );
 
@@ -1070,7 +1070,7 @@ sub delete {
     return( $self->displayUser() ) unless $self->{'arg'}->{'dn'};
 
 ##
-    unless ( $self->{'config'}->{'user.allowDelete'} eq '1' ) {
+    unless ( $self->{'config'}->{'user.allowdelete'} eq '1' ) {
         $self->{'arg'}->{'error'} = 'You are not allowed to delete users!';
 
         return( $self->displayUser() );
@@ -1083,7 +1083,7 @@ sub delete {
         my $filter = 'uniqueMember=' . $self->{'arg'}->{'dn'};
 
         my $group = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.Base.Group'},
+            base   => $self->{'config'}->{'ldap.base.group'},
             filter => $filter,
             attrs  => [ 'cn' ]
         );
@@ -1094,7 +1094,7 @@ sub delete {
             foreach my $g ( keys %{$group} ) {
                 $self->{'ldap'}->modify(
                     'cn=' . $group->{$g}->{'cn'} . ','
-                          . $self->{'config'}->{'ldap.Base.Group'},
+                          . $self->{'config'}->{'ldap.base.group'},
                     delete => { 'uniqueMember' => $self->{'arg'}->{'dn'} }
                 );
             }
@@ -1111,7 +1111,7 @@ sub delete {
     if ( $self->{'arg'}->{'group'} ) {
         $self->{'ldap'}->delete(
             'cn=' . $self->{'arg'}->{'group'} . ','
-                  . $self->{'config'}->{'ldap.Base.Group'}
+                  . $self->{'config'}->{'ldap.base.group'}
         );
 
         $self->{'util'}->log(
@@ -1170,7 +1170,7 @@ sub password {
 
     my $pwCrypt = $self->{'util'}->pwEncrypt(
         text   => $self->{'arg'}->{'password'},
-        digest => $self->{'config'}->{'pw.Encrypt'}
+        digest => $self->{'config'}->{'pw.encrypt'}
     )
     || die qq(Error attempting to encrypt password\n);
 
@@ -1239,21 +1239,21 @@ sub search {
 
     if ( $self->{'arg'}->{'search'} eq '*' ) {
         $user = $self->{'ldap'}->fetch(
-            base   => $base || $self->{'config'}->{'ldap.Base.User'},
+            base   => $base || $self->{'config'}->{'ldap.base.user'},
             filter => '(uid=*)',
             attrs  => [ '*', 'nsAccountLock' ]
         ) || {};
         $group = $self->{'ldap'}->fetch(
-            base   => $base || $self->{'config'}->{'ldap.Base.Group'},
+            base   => $base || $self->{'config'}->{'ldap.base.group'},
             filter =>
-                '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+                '(& (objectClass=' . $self->{'config'}->{'group.objectclass'} . ')'
                  . '(cn=*) )',
             attrs  => [ '*' ]
         ) || {};
     }
     else {
         $user = $self->{'ldap'}->fetch(
-            base   => $base || $self->{'config'}->{'ldap.Base.User'},
+            base   => $base || $self->{'config'}->{'ldap.base.user'},
             filter =>
                 '(| (uid=*' . $self->{'arg'}->{'search'} . '*)'
                  . '(mail=*' . $self->{'arg'}->{'search'} . '*)'
@@ -1261,9 +1261,9 @@ sub search {
             attrs  => [ '*', 'nsAccountLock' ]
         ) || {};
         $group = $self->{'ldap'}->fetch(
-            base   => $base || $self->{'config'}->{'ldap.Base.Group'},
+            base   => $base || $self->{'config'}->{'ldap.base.group'},
             filter =>
-                '(& (objectClass=' . $self->{'config'}->{'group.objectClass'} . ')'
+                '(& (objectClass=' . $self->{'config'}->{'group.objectclass'} . ')'
                  . '(cn=*' . $self->{'arg'}->{'search'} . '*) )',
             attrs  => [ '*' ]
         ) || {};
@@ -1317,12 +1317,12 @@ sub search {
         },
         total     => scalar keys %{$search},
         base      => sub {
-            unless ( ref $self->{'config'}->{'ldap.Base.User'} ) {
+            unless ( ref $self->{'config'}->{'ldap.base.user'} ) {
                 return( '' );
             }
 
             my $labels = $self->{'ldap'}->getLabels(
-                base => $self->{'config'}->{'ldap.Base.User'}
+                base => $self->{'config'}->{'ldap.base.user'}
             );
 
             $labels->{''} = ' All ';
