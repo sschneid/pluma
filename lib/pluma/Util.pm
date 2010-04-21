@@ -124,8 +124,8 @@ sub readConfig {
         open( CONFILE, $arg->{'configFile'} ) || return( 0 );
 
         while( <CONFILE> ) {
-            $config->{$1} = $2 if /^\$(.+?):.+?"(.+?)"/;
-            ( @{$config->{$1}} ) = split( / /, $2 ) if /^\@(.+?):.+?"(.+?)"/;
+            $config->{lc( $1 )} = $2 if /^\$(.+?):.+?"(.+?)"/;
+            ( @{$config->{lc( $1 )}} ) = split( / /, $2 ) if /^\@(.+?):.+?"(.+?)"/;
         }
         close( CONFILE );
     }
@@ -136,12 +136,12 @@ sub readConfig {
     map {
         if ( ref $config->{$_} ) {
             foreach ( @{$config->{$_}} ) {
-                $_ =~ s/\$([\w.]+)/$config->{$1}/g;
+                $_ =~ s/\$([\w.]+)/$config->{lc( $1 )}/g;
                 $_ =~ s/\\s/ /g;
             }
         }
         else {
-            $config->{$_} =~ s/\$([\w.]+)/$config->{$1}/g;
+            $config->{$_} =~ s/\$([\w.]+)/$config->{lc( $1 )}/g;
             $config->{$_} =~ s/\\s/ /g;
         }
     } keys %{$config};

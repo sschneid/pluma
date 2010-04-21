@@ -97,8 +97,8 @@ sub fetch {
             filter => $arg->{'filter'},
             attrs  => $arg->{'attrs'},
 
-            sizelimit => $self->{'config'}->{'fetch.Limit.Size'},
-            timelimit => $self->{'config'}->{'fetch.Limit.Time'}
+            sizelimit => $self->{'config'}->{'fetch.limit.size'},
+            timelimit => $self->{'config'}->{'fetch.limit.time'}
         );
 
         next unless $result->entries();
@@ -150,7 +150,7 @@ sub move {
         $key =~ s/^(.*)\=.*$/$1=$arg->{'newuser'}/g;
 
         my $existing = $self->fetch(
-            base   => $self->{'config'}->{'ldap.Base.User'},
+            base   => $self->{'config'}->{'ldap.base.user'},
             filter => $key,
             attrs  => [ '*' ]
         );
@@ -173,7 +173,7 @@ sub move {
 
     # Fix group membership
     my $group = $self->fetch(
-        base   => $self->{'config'}->{'ldap.Base.Group'},
+        base   => $self->{'config'}->{'ldap.base.group'},
         filter => 'uniqueMember=' . $arg->{'dn'},
         attrs  => [ 'cn' ]
     );
@@ -184,7 +184,7 @@ sub move {
         foreach my $g ( keys %{$group} ) {
             $self->modify(
                 'cn=' . $group->{$g}->{'cn'} . ','
-                      . $self->{'config'}->{'ldap.Base.Group'},
+                      . $self->{'config'}->{'ldap.base.group'},
                 add    => { 'uniqueMember' => $dn },
                 delete => { 'uniqueMember' => $arg->{'dn'} }
             );
