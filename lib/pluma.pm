@@ -77,8 +77,10 @@ sub setup {
     $self->{'ldap'}->set( %{$self->{'config'}} );
 
     # User defaults if not specified
-    $self->{'config'}->{'user.uniqueid'}     ||= 'uid';
-    $self->{'config'}->{'group.objectclass'} ||= 'groupOfUniqueNames';
+    $self->{'config'}->{'user.uniqueID'}     ||= 'uid';
+    $self->{'config'}->{'group.objectClass'} ||= 'groupOfUniqueNames';
+    $self->{'config'}->{'group.memberAttribute'} ||= 'uniqueMember';
+    $self->{'config'}->{'mail.WelcomeLetter.template'} ||= 'email';
 
     unless( defined( $self->{'config'}->{'user.posix.hosts'} ) ) {
         $self->{'config'}->{'user.posix.hosts'} = '1';
@@ -303,7 +305,7 @@ sub displayGroup {
     }
 
     # Members
-    unless ( $group->{'uniqueMember'} ) {
+    unless ( $group->{$self->{'config'}->{'group.memberAttribute'}} ) {
         $group->{'members'} = $self->{'util'}->wrap(
             container => 'error',
             error     => 'None found'
@@ -314,11 +316,11 @@ sub displayGroup {
         ) );
     }
 
-    $group->{'uniqueMember'} = [ $group->{'uniqueMember'} ]
-        unless ref $group->{'uniqueMember'};
+    $group->{$self->{'config'}->{'group.memberAttribute'}} = [ $group->{$self->{'config'}->{'group.memberAttribute'}} ]
+        unless ref $group->{$self->{'config'}->{'group.memberAttribute'}};
 
     my $filter = '(| ';
-    foreach ( @{$group->{'uniqueMember'}} ) { $filter .= "($1)" if /^(.+?)\,/; }
+    foreach ( @{$group->{$self->{'config'}->{'group.memberAttribute'}}} ) { $filter .= "($1)" if /^(.+?)\,/; }
     $filter .= ' )';
 
     my $member = $self->{'ldap'}->fetch(
@@ -463,9 +465,9 @@ sub displayUser {
 
     # Groups
     my $group = $self->{'ldap'}->fetch(
-            base   => $self->{'config'}->{'ldap.base.group'},
-            filter => 'objectClass=' . $self->{'config'}->{'group.objectclass'},
-            attrs  => [ 'cn', 'gidNumber', 'uniqueMember' ]
+            base   => $self->{'config'}->{'ldap.Base.Group'},
+            filter => 'objectClass=' . $self->{'config'}->{'group.objectClass'},
+            attrs  => [ 'cn', 'gidNumber', $self->{'config'}->{'group.memberAttribute'} ]
     );
 
     $group = { $group->{'cn'} => $group } if $group && $group->{'cn'};
@@ -480,11 +482,11 @@ sub displayUser {
         $labels{$group->{$g}->{'gidNumber'}} = $group->{$g}->{'cn'}
             if $group->{$g}->{'gidNumber'};
 
-        if ( $group->{$g}->{'uniqueMember'} ) {
-            $group->{$g}->{'uniqueMember'} = [ $group->{$g}->{'uniqueMember'} ]
-                if not ref $group->{$g}->{'uniqueMember'}; 
+        if ( $group->{$g}->{$self->{'config'}->{'group.memberAttribute'}} ) {
+            $group->{$g}->{$self->{'config'}->{'group.memberAttribute'}} = [ $group->{$g}->{$self->{'config'}->{'group.memberAttribute'}} ]
+                if not ref $group->{$g}->{$self->{'config'}->{'group.memberAttribute'}}; 
 
-            foreach ( @{$group->{$g}->{'uniqueMember'}} ) {
+            foreach ( @{$group->{$g}->{$self->{'config'}->{'group.memberAttribute'}}} ) {
                 $group->{1}->{$group->{$g}->{'cn'}} = 1 if /uid=$uid,/;
             }
         }
@@ -646,6 +648,36 @@ sub modUser {
             base  => $self->{'arg'}->{'base'}
         );
 
+        # Fix group membership
+        my $group = $self->{'ldap'}->fetch(
+            base   => $self->{'config'}->{'ldap.Base.Group'},
+            filter => $self->{'config'}->{'group.memberAttribute'} .'=' . $self->{'arg'}->{'dn'},
+            attrs  => [ 'cn' ]
+        );
+
+        if ( $group ) {
+            $group = { 'g' => $group } if $group->{'cn'};
+
+            foreach my $g ( keys %{$group} ) {
+                $self->{'ldap'}->modify(
+                    'cn=' . $group->{$g}->{'cn'} . ','
+                          . $self->{'config'}->{'ldap.Base.Group'},
+                    add    => { $self->{'config'}->{'group.memberAttribute'} => 'uid='
+                                  . $self->{'arg'}->{'user'}
+                                  . ',' . $self->{'arg'}->{'base'} },
+                    delete => { $self->{'config'}->{'group.memberAttribute'} => $self->{'arg'}->{'dn'} }
+                );
+                if ( $self->{'config'}->{'group.POSIX'} ) {
+                    $self->{'ldap'}->modify(
+                        'cn=' . $group->{$g}->{'cn'} . ','
+                              . $self->{'config'}->{'ldap.Base.Group'},
+                        add    => { 'memberUid' =>  $self->{'arg'}->{'user'} },
+                        delete => { 'memberUid' => $self->{'arg'}->{'user'} }
+                    );
+                }
+            }
+        }
+
         $self->{'arg'}->{'dn'} =
             'uid=' . $self->{'arg'}->{'user'} . ',' . $self->{'arg'}->{'base'};
     }
@@ -711,9 +743,18 @@ sub modUser {
                             'cn=' . $obj . ','
                                   . $self->{'config'}->{'ldap.base.group'},
                             $action => {
-                                'uniqueMember' => $self->{'arg'}->{'dn'}
+                                $self->{'config'}->{'group.memberAttribute'} => $self->{'arg'}->{'dn'}
                             }
                         );
+                        if ( $self->{'config'}->{'group.POSIX'} ) {
+                            $self->{'ldap'}->modify(
+                                'cn=' . $obj . ','
+                                  . $self->{'config'}->{'ldap.Base.Group'},
+                             $action => {
+                                    'memberUid' => $self->{'arg'}->{'user'}
+                                }
+                            );
+                        }
 
                         $self->{'util'}->log(
                             what   => 'u:' .  $self->{'arg'}->{'user'},
@@ -750,17 +791,17 @@ sub modUser {
                 $chg->{'cn'} = $self->{'arg'}->{'cn'};
 
                 $chg->{'sn'} = $self->{'arg'}->{'cn'};
-                $chg->{'sn'} =~ s/^.+?([a-zA-Z\-]+)$/$1/;
+                $chg->{'sn'} =~ s/^.+?(\w+)$/$1/;
 
                 $chg->{'givenName'} = $self->{'arg'}->{'cn'};
-                $chg->{'givenName'} =~ s/^([a-zA-Z\-]+).+?$/$1/;
+                $chg->{'givenName'} =~ s/^(\w+).+?$/$1/;
 
                 if ( $self->{'config'}->{'user.posix'} ) {
                     $chg->{'gecos'} = $self->{'arg'}->{'cn'};
                 }
 
                 foreach ( keys %{$chg} ) {
-                    $self->{'ldap'}->modify(
+                    print Dumper $self->{'ldap'}->modify(
                         $self->{'arg'}->{'dn'},
                         replace => { $_ => $chg->{$_} }
                     );
@@ -809,7 +850,7 @@ sub create {
     for ( $self->{'arg'}->{'create'} ) {
         /user/ && do {
             return( $self->displayCreate(
-                error => qq(Pleaes enter a username and name.)
+                error => qq(Please enter a username and name.)
             ) )
                 unless ( $self->{'arg'}->{'uid'} && $self->{'arg'}->{'cn'} );
 
@@ -817,6 +858,7 @@ sub create {
                 error => qq(Usernames can contain only alphanumeric characters.)
             ) )
                 unless ( $self->{'arg'}->{'uid'} =~ /^\w+$/ );
+
  
             # Check for existing uniqueID
             if ( $self->{'ldap'}->fetch(
@@ -970,7 +1012,9 @@ sub create {
             }
 
             # Populate with a blank uniqueMember for OpenLDAP
-            $create->{'attr'}->{'uniqueMember'} = '';
+            if ( $self->{'config'}->{'group.memberAttribute'} eq 'uniqueMember' ) {
+                $create->{'attr'}->{$self->{'config'}->{'group.memberAttribute'}} = '';
+            }
 
             if ( $self->{'config'}->{'group.posix'} ) {
                 push @{$create->{'attr'}->{'objectClass'}}, 'posixGroup'
@@ -1023,7 +1067,7 @@ sub create {
                 $self->{'arg'}->{'mail.WelcomeLetter'}
             ) {
                 my $message = $self->{'util'}->wrap(
-                    container => 'email',
+                    container => $self->{'config'}->{'mail.WelcomeLetter.template'},
                     cn        => $self->{'arg'}->{'cn'},
                     uid       => $self->{'arg'}->{'uid'},
                     password  => $create->{'password'}
@@ -1080,7 +1124,7 @@ sub delete {
     if ( $self->{'arg'}->{'user'} ) {
         $self->{'ldap'}->delete( $self->{'arg'}->{'dn'} );
     
-        my $filter = 'uniqueMember=' . $self->{'arg'}->{'dn'};
+        my $filter = $self->{'config'}->{'group.memberAttribute'} .  '=' . $self->{'arg'}->{'dn'};
 
         my $group = $self->{'ldap'}->fetch(
             base   => $self->{'config'}->{'ldap.base.group'},
@@ -1094,9 +1138,18 @@ sub delete {
             foreach my $g ( keys %{$group} ) {
                 $self->{'ldap'}->modify(
                     'cn=' . $group->{$g}->{'cn'} . ','
-                          . $self->{'config'}->{'ldap.base.group'},
-                    delete => { 'uniqueMember' => $self->{'arg'}->{'dn'} }
+                          . $self->{'config'}->{'ldap.Base.Group'},
+                    delete => { $self->{'config'}->{'group.memberAttribute'} => $self->{'arg'}->{'dn'} }
                 );
+                if ( $self->{'config'}->{'group.POSIX'} ) {
+                    $self->{'ldap'}->modify(
+                        'cn=' . $group->{$g}->{'cn'} . ','
+                              . $self->{'config'}->{'ldap.Base.Group'},
+                        delete => {
+                            'memberUid' => $self->{'arg'}->{'user'}
+                        }
+                    );
+                }
             }
         }
 
